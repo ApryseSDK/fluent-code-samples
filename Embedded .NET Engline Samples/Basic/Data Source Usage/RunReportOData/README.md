@@ -1,4 +1,4 @@
-# Embedded .NET Engine Basic Data Source Samples
+# Embedded .NET Engine OData Data Source Sample
 
 ## Overview
 This sample project demonstrates generating a document from a template that uses an OData datasource.
