@@ -4,9 +4,11 @@
 This sample is a command line project which exposes nearly all document generation features of Fluent using a few command line arguments.
 
 ## Running the Project
-1. In the top right corner of Intellij, click the Project dropdown by the Run button and select *Edit Configuration*
-2. In the Edit Configuration window, you will enter values into the *Program Arguments* text field.
-3. Follow usage below to get the values to enter in the *Program Arguments* field.
+1. Add your license in the WindwardReports.properties file
+   1. If you don't have a license, you can leave it blank and output will generate with a watermark
+2. In the top right corner of Intellij, click the Project dropdown by the Run button and select *Edit Configuration*
+3. In the Edit Configuration window, you will enter values into the *Program Arguments* text field.
+4. Follow usage below to get the values to enter in the *Program Arguments* field.
 
 ## Simple Example Usage
 At the simplest level you will specify a template, and output file and a data source if necessary.

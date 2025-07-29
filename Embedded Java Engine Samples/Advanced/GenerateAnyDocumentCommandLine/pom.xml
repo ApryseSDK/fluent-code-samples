@@ -17,7 +17,6 @@
     </repositories>
 
     <dependencies>
-        <!-- FOR VERSIONS v24 AND ABOVE -->
         <dependency>
             <groupId>com.apryse.fluent</groupId>
             <artifactId>FluentDocs</artifactId>
