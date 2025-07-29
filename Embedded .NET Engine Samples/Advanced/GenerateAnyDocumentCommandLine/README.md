@@ -9,7 +9,7 @@ This sample is a command line project which exposes nearly all document generati
 2. In Visual Studio, right click ont he GenerateAnyDocumentCommandLine C# Project and select *Properties*
 3. In the Properties window, navigate to the *Debug* tab on the left side bar
 4. In the Debug window, you will enter values into the *Command line arguments* text field.
-4. Follow usage below to get the values to enter in the *Command line arguments* field.
+5. Follow usage below to get the values to enter in the *Command line arguments* field.
 
 ## Simple Example Usage
 At the simplest level you will specify a template, and output file and a data source if necessary.
