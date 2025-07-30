@@ -27,7 +27,7 @@ public class FluentCustomFunctionsTest {
             // For each type of datasource, the connector package is different
             DataSourceProvider datasource = new SaxonDataSource("http://xml.windward.net/Southwind.xml", null);
 
-            // Finally, send it to Windward for processing.  The second parameter is the name of the
+            // Finally, send it to Fluent for processing.  The second parameter is the name of the
             // datasource.  This should match the name used in your template.
             report.processData(datasource, "XML");
 
