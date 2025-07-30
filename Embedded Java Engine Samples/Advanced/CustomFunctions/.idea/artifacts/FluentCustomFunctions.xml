@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="FluentCustomFunctions">
+    <output-path>$PROJECT_DIR$/CustomFunctionsExample/out/artifacts/FluentCustomFunctions</output-path>
+    <root id="archive" name="FluentCustomFunctions.jar">
+      <element id="module-output" name="CustomFunctionsExample" />
+    </root>
+  </artifact>
+</component>
