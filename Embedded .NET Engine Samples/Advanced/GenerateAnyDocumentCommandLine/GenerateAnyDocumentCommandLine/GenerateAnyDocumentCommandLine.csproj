@@ -55,7 +55,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="WindwardEngine">
+    <PackageReference Include="FluentEngine">
       <Version>*</Version>
     </PackageReference>
   </ItemGroup>

@@ -231,17 +231,6 @@ namespace GenerateAnyDocumentCommandLine
                 // Create the report object, based on the file extension
                 using (Report report = CreateReport(cmdLine, template, output))
                 {
-                    // if (!cmdLine.IsPerformance)
-                    // {
-                    //     Console.Out.WriteLine(string.Format("Data processor: {0}", report.DataProcessorVersion));
-                    // }
-
-                    /*report.OutputBuilder = new PDFTronOutputBuilder();
-					report.UseExternalOutputBuilder = true;*/
-
-                    /*report.Properties.Set("output.builder", "net.windward.env.PDFTronOutputBuilder");
-					report.Properties.Set("use.external.output.builder", true);*/
-
                     report.TrackErrors = (Report.ERROR_HANDLING)cmdLine.VerifyFlag;
 
                     if (cmdLine.BaseDirectory != null)
@@ -338,11 +327,6 @@ namespace GenerateAnyDocumentCommandLine
                                         Console.Out.WriteLine(string.Format("OData datasource: {0}", dsInfo.Filename));
 
                                     datasource = new ODataDataSourceImpl(dsInfo.ExConnectionString);
-                                    // assign the loaded datasets. 
-                                    /* bugbug
-									if (datasets != null)
-										((ODataDataSourceImpl)datasource).Datasets = (ODataDataset[])datasets;
-									*/
                                     break;
 
                                 // A SalesForce datasource.
