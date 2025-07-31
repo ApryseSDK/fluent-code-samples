@@ -39,7 +39,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyRunReport.cs" />
+    <Compile Include="GenerateDocument.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
