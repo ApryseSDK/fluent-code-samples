@@ -12,9 +12,9 @@ For this project, we have a template that references a custom function called *C
 > This project is setup  where you only need to click the *Run* button and it should all work without any additional changes
 
 1. Open the project in Intellij
-2. Insert your license in the WindwardReports.properties file
+2. Insert your license in the WindwardReports.properties file in the CustomFunctionsTest project
     1. If you don't have a license you can leave it blank and a watermark will be present in output
-3. Set the *function.files* property in WindwardReports.properties to the fully qualified name of the custom function file being referenced
+3. Set the *function.files* property in WindwardReports.properties in the CustomFunctionsTest to the fully qualified name of the custom function file being referenced
 4. Run the sample (FluentCustomFunctionTest) with the *Run* button
 
 
