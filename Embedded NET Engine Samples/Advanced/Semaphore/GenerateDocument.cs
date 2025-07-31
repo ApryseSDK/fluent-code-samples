@@ -11,7 +11,7 @@ namespace SemaphoreSample
 	/// <summary>
 	/// Demonstrates how to use a semaphore to limit N threads calling Fluent at once.
 	/// </summary>
-	public class MyRunReport
+	public class GenerateDocument
 	{
 
 		private readonly string templateFilename;
@@ -23,7 +23,7 @@ namespace SemaphoreSample
 		/// <summary>
 		/// Pulls the number of threads from the config file. If this changes you need to re-start the app.
 		/// </summary>
-		static MyRunReport()
+		static GenerateDocument()
 		{
 			NameValueCollection appSettings = ConfigurationManager.AppSettings;
 			string strNumThreads = appSettings["NumberThreads"];
@@ -38,7 +38,7 @@ namespace SemaphoreSample
 			// sem = new Semaphore(intNumThreads, intNumThreads, "MySemaphoreName");
 		}
 
-		public MyRunReport(string templateFilename, string xmlDataFilename, string reportFilename)
+		public GenerateDocument(string templateFilename, string xmlDataFilename, string reportFilename)
 		{
 			this.templateFilename = templateFilename;
 			this.xmlDataFilename = xmlDataFilename;

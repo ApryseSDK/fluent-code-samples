@@ -58,6 +58,13 @@ Set the maximum number of concurrent threads in `App.config`:
    - Spawn multiple threads, each creating a report
    - Enforce concurrency limit using a semaphore
    - Write completed reports to the `out` directory
+   4. (optional) Add your license key to the App.Config by adding this section nested in the <configuration>:
+
+  <WindwardReports>
+    <add key="license" value="[[LICENSE]]"/>
+  </WindwardReports>
+
+  replace [[LICENSE]] with your license key. Leaving this out will result in watermarked output.
 
 ## Notes
 

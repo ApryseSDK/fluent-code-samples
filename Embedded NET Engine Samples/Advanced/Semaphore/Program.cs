@@ -30,9 +30,9 @@ namespace SemaphoreSample
                 Directory.CreateDirectory(pathReports);
 
 			// set up the reports I want to run
-			MyRunReport [] myReports = new MyRunReport[10];
+			GenerateDocument [] myReports = new GenerateDocument[10];
 			for (int ind = 0; ind < myReports.Length; ind++)
-                myReports[ind] = new MyRunReport(template, xmlData, Path.Combine(pathReports, string.Format("Report_{0}.docx", ind)));
+                myReports[ind] = new GenerateDocument(template, xmlData, Path.Combine(pathReports, string.Format("Report_{0}.docx", ind)));
 
 			// create a thread for each request
 			Thread[] myThreads = new Thread[myReports.Length];
