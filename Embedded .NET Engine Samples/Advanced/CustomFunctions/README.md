@@ -10,11 +10,12 @@ For this project, we have a template that references a custom function called *C
 ## Running the Project
 
 > This project is setup  where you only need to click the *Start* button and it should all work without any additional changes
-1. Open the project in Visual STudio
+1. Open the project in Visual Studio
 2. Insert your license in the App.config file in the FluentCustomFunctionsTest project
     1. If you don't have a license you can leave it blank and a watermark will be present in output
 3. Set the *function.files* property in the App.config file in the FluentCustomFunctionsTest project to the path to the custom function dll (FluentCustomFunctions.dll)
-4. Run the sample (FluentCustomFunctionTest) with the *Start* button
+4. Set *FluentCustomFunctionsTest* as the startup project by right clicking on the *FluentCustomFunctionsTest* and selecting "Set as Startup Project".
+5. Run the sample (FluentCustomFunctionTest) with the *Start* button
 
 
 ## Modifying the Custom Function
