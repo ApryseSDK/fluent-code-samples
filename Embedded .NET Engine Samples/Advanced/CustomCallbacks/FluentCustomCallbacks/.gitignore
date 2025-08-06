@@ -1,0 +1,29 @@
+    # Visual Studio
+    .vs/
+    *.suo
+    *.user
+    *.sou
+    *.ncb
+    *.opensdf
+    *.sdf
+    *.bak
+    *.log
+    *.docstates
+
+    # Build results
+    [Dd]ebug/
+    [Rr]elease/
+    [Bb]in/
+    [Oo]bj/
+
+    # Packages
+    packages/
+    *.nupkg
+    *.dll.config
+
+    # Rider
+    .idea/
+    *.iml
+
+    # Temporary files
+    temp/
