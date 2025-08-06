@@ -69,6 +69,7 @@ namespace DataModeSample
             // All finished!
             Console.WriteLine("Finished generating report: " + output.Name);
             Console.WriteLine("Finished generating data file: " + output.Name);
+            Console.WriteLine("Press Any Key To Exit...");
             Console.ReadKey();
         }
     }
