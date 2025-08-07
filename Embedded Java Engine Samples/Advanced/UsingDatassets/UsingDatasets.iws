@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c4e65e29-f241-40b4-a86f-011216d7835e" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../azure-pipelines.yml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../black-duck-scan.yml" beforeDir="false" />
@@ -10299,10 +10298,6 @@
       <change beforePath="$PROJECT_DIR$/../../../../engine/javaEngine/test/systems/TestSampleTemplates.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../engine/javaEngine/test/systems/TestSampleTemplates_32BIT.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../engine/unitTestTools/open-xml-validator.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Embedded .NET Engine Samples/Advanced/GenerateAnyDocumentCommandLine/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../Embedded .NET Engine Samples/Advanced/Semaphore/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../CustomFunctions/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GenerateAnyDocumentCommandLine/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../pipelines/azure-build-check.yml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../polaris.yml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../pull_request_template.md" beforeDir="false" />
@@ -11441,7 +11436,7 @@
       <option name="presentableId" value="Default" />
       <updated>1353010572272</updated>
       <workItem from="1714404967628" duration="35000" />
-      <workItem from="1754404823015" duration="2860000" />
+      <workItem from="1754404823015" duration="3470000" />
     </task>
     <servers />
   </component>
