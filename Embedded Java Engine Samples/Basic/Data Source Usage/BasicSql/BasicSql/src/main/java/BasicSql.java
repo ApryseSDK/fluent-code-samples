@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2012 by Windward Studios, Inc. All rights reserved.
- *
- * This program can be copied or used in any manner desired.
- */
-
 import java.awt.*;
 import java.io.*;
 
@@ -46,7 +40,7 @@ public class BasicSql {
             DataSourceProvider datasource = new JdbcDataSource("com.microsoft.sqlserver.jdbc.SQLServerDriver",
                     "jdbc:sqlserver://mssql.windward.net;DatabaseName=Northwind", "demo", "demo");
 
-            // Finally, send it to Windward for processing.  The second parameter is the name of the
+            // Finally, send it to Fluent for processing.  The second parameter is the name of the
             // datasource.  This should match the name used in your template.
             report.processData(datasource, "MSSQL");
 

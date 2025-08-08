@@ -1,21 +1,15 @@
-/*
- * Copyright (c) 2012 by Windward Studios, Inc. All rights reserved.
- *
- * This program can be copied or used in any manner desired.
- */
-
-import java.awt.*;
-import java.io.*;
-
 import net.windward.datasource.DataSourceProvider;
 import net.windward.datasource.odata.ODataDataSource;
 import net.windward.xmlreport.ProcessPdf;
 import net.windward.xmlreport.ProcessReport;
-import net.windward.xmlreport.ProcessReportAPI;
-import net.windward.env.SystemWrapper;
+
+import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 /*
- * A sample usage of the Windward Java Engine. This is the first building block to a great report!
+ * A sample usage of the Fluent Java Engine. This is the first building block to a great report!
  *
  * This sample takes in a datasource and template file--in this case, data.xml and template.docx from
  * the data directory--and produces the report, stored as report.pdf in the out directory.
@@ -30,7 +24,7 @@ public class BasicOData {
             File fileReport = new File("out/report.pdf");
             fileReport.getParentFile().mkdirs();
 
-            FileInputStream template = new FileInputStream("data/template.docx");
+            FileInputStream template = new FileInputStream("YOUR_TEMPLATE_PATH");
             FileOutputStream reportStream = new FileOutputStream(fileReport);
             ProcessReport report = new ProcessPdf(template, reportStream);
 
@@ -39,11 +33,11 @@ public class BasicOData {
 
             // Set up the datasource. The parameters are connector package, url, username, password.
             // For each type of datasource, the connector package is different
-            DataSourceProvider datasource = new ODataDataSource("https://services.odata.org/V2/Northwind/Northwind.svc/");
+            DataSourceProvider datasource = new ODataDataSource("YOUR_CONNECTION_STRING");
 
-            // Finally, send it to Windward for processing.  The second parameter is the name of the
+            // Finally, send it to Fluent for processing.  The second parameter is the name of the
             // datasource.  This should match the name used in your template.
-            report.processData(datasource, "");
+            report.processData(datasource, "YOUR_DATASOURCE_NAME");
 
             // And... DONE!
             report.processComplete();

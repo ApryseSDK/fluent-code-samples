@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2012 by Windward Studios, Inc. All rights reserved.
- *
- * This program can be copied or used in any manner desired.
- */
-
 import java.awt.*;
 import java.io.*;
 
@@ -15,7 +9,7 @@ import net.windward.xmlreport.ProcessReportAPI;
 import net.windward.env.SystemWrapper;
 
 /*
- * A sample usage of the Windward Java Engine. This is the first building block to a great report!
+ * A sample usage of the Fluent Java Engine. This is the first building block to a great report!
  *
  * This sample takes in a sample sql datasource and a docx template file--in this case, template.docx
  * in the data directory--and produces the report, stored as report.pdf in the out directory.
@@ -48,7 +42,7 @@ public class BasicDb2 {
             DataSourceProvider datasource = new JdbcDataSource("com.ibm.db2.jcc.DB2Driver",
                     "jdbc:db2://db2.windward.net:50000/SAMPLE", "demo", "demo");
 
-            // Finally, send it to Windward for processing.  The second parameter is the name of the
+            // Finally, send it to Fluent for processing.  The second parameter is the name of the
             // datasource.  This should match the name used in your template.
             report.processData(datasource, "DB2");
 

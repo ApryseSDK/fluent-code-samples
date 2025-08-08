@@ -1,12 +1,13 @@
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 import net.windward.datasource.DataSourceProvider;
-
 import net.windward.datasource.salesforce.SalesForceDataSource;
 import net.windward.xmlreport.ProcessPdf;
 import net.windward.xmlreport.ProcessReport;
-import net.windward.xmlreport.ProcessReportAPI;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BasicSalesforce {
 
@@ -20,7 +21,7 @@ public class BasicSalesforce {
         File fileReport = new File("out/report.pdf");
         fileReport.getParentFile().mkdirs();
 
-        FileInputStream template = new FileInputStream("data/template.docx");
+        FileInputStream template = new FileInputStream("YOUR_TEMPLATE_FILE_PATH");
         FileOutputStream reportStream = new FileOutputStream(fileReport);
         ProcessReport report = new ProcessPdf(template, reportStream);
 
@@ -33,9 +34,9 @@ public class BasicSalesforce {
 
         Map<String, DataSourceProvider> dataSources = new HashMap<String, DataSourceProvider>();
 
-        DataSourceProvider sfdemo = new SalesForceDataSource("demo@windward.net", "w1ndw@rd", "BtqoH7pIR6rkR0fwh1YU156Hp", true);
+        DataSourceProvider sfdemo = new SalesForceDataSource("YOUR_USERNAME", "YOUR_PASSWORD", "YOUR_SECURITY_TOKEN", true);
         sfdemo.setParameters(mapVariables);
-        dataSources.put("sfdemo", sfdemo);
+        dataSources.put("YOUR_DATA_SOURCE_NAME", sfdemo);
 
         // Insert all data into the report.
         report.processData(dataSources);
