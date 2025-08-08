@@ -23,7 +23,7 @@ To modify the custom function:
 1. Open the FluentCustomFunctions file in the *FluentCustomFunctions* project.
 2. Modify the returned value in the `public static string CUSTOMFUNCTION()` method
 3. Rebuild the **FluentCustomFunctions** project
-4. Run the sample (FluentCustomFunctionTest) with the *Start* button
+4. Run the sample (FluentCustomFunctionTest) with the *Start* button. *You need to make sure FluentCustomTest is your start up project.*
 
 ## Additional Setup Information
 This section provides some more info about how this project is setup.
