@@ -15,12 +15,13 @@ For this project, we have a template that references a custom function called *C
 2. Insert your license in the WindwardReports.properties file in the CustomFunctionsTest project
     1. If you don't have a license you can leave it blank and a watermark will be present in output
 3. Set the *function.files* property in WindwardReports.properties in the CustomFunctionsTest to the fully qualified name of the custom function file being referenced
+3. Restore the maven project.
 4. Run the sample (FluentCustomFunctionTest) with the *Run* button
 
 
 ## Modifying the Custom Function
 To modify the custom function:
-1. Open the FluentCustomFunctions file in the *CustomFunctionsExample* project.
+1. Open the FluentCustomFunctions file in the *CustomFunctionsExample* project with IntelliJ or the Java IDE of your choice.
 2. Modify the returned value in the `public static Object CUSTOMFUNCTION()` method
 3. Rebuild the **CustomFunctionsExample** module
 4. Run the sample (FluentCustomFunctionTest) with the *Run* button
