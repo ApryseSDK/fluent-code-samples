@@ -71,7 +71,7 @@ public class GenerateDocument implements Runnable {
 
 				// Finally, send it to Windward for processing.  The second parameter is the name of the
 				// datasource.  This should match the name used in your template.
-				report.processData(datasource, "");
+				report.processData(datasource, "sax");
 
 				// And... DONE!
 				report.processComplete();
