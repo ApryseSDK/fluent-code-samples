@@ -40,7 +40,7 @@ public class BasicDb2 {
             // Set up the datasource. The parameters are connector package, url, username, password.
             // For each type of datasource, the connector package is different
             DataSourceProvider datasource = new JdbcDataSource("com.ibm.db2.jcc.DB2Driver",
-                    "jdbc:db2://db2.windward.net:50000/SAMPLE", "demo", "demo");
+                    "YOUR_DATASOURCE_CONNECTION_STRING", "YOUR_DATASOURCE_USERNAME", "YOUR_DATASOURCE_PASSWORD");
 
             // Finally, send it to Fluent for processing.  The second parameter is the name of the
             // datasource.  This should match the name used in your template.

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.apryse.fluent</groupId>
-    <artifactId>BasicDb2</artifactId>
+    <artifactId>BasicOracle</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <repositories>
@@ -21,6 +21,11 @@
             <groupId>com.apryse.fluent</groupId>
             <artifactId>FluentDocs</artifactId>
             <version>LATEST</version>
+        </dependency>
+        <dependency>
+            <groupId>ojdbc6</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>6.0</version>
         </dependency>
     </dependencies>
 

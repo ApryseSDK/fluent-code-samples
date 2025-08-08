@@ -23,6 +23,11 @@
             <artifactId>FluentDocs</artifactId>
             <version>LATEST</version>
         </dependency>
+        <dependency>
+            <groupId>sqljdbc</groupId>
+            <artifactId>sqljdbc</artifactId>
+            <version>4.1</version>
+        </dependency>
     </dependencies>
 
     <properties>

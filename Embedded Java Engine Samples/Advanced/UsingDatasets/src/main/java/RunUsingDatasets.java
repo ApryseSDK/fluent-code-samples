@@ -1,18 +1,9 @@
-/*
-* Copyright (c) 2012 by Windward Studios, Inc. All rights reserved.
-*
-* This program can be copied or used in any manner desired.
-*/
-
-import net.windward.datasource.*;
+import net.windward.datasource.DataSourceProvider;
 import net.windward.datasource.dataset.DataSetDataSource;
-import net.windward.datasource.xml.*;
-import net.windward.datasource.jdbc.*;
-import net.windward.env.SystemWrapper;
-import net.windward.env.WindwardWrapper;
+import net.windward.datasource.jdbc.JdbcDataSource;
+import net.windward.datasource.xml.SaxonDataSource;
 import net.windward.xmlreport.ProcessPdf;
 import net.windward.xmlreport.ProcessReportAPI;
-import net.windward.env.SystemWrapper;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -34,8 +25,9 @@ public class RunUsingDatasets {
             // For now, we're using the pdf format to output.
             InputStream streamTemplate = new FileInputStream("files/Sample Dataset Template.docx");
             File reportFile = new File("out/Sample Dataset Report.pdf");
-            OutputStream streamReport = new FileOutputStream(reportFile);
+            reportFile.getParentFile().mkdirs();
 
+            OutputStream streamReport = new FileOutputStream(reportFile);
 
             ProcessReportAPI report = new ProcessPdf(streamTemplate, streamReport);
 
