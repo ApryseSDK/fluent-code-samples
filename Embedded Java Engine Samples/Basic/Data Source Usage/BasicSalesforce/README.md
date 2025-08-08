@@ -8,6 +8,8 @@ This sample project demonstrates generating a document from a template that uses
 ## Usage
 Use the following steps to build and run the project.
 
+> Ensure JDK for the project is set to version 1.8
+
 1. Open the BasicSalesforce directory in your IDE
 2. Open the WindwardReports.properties file and insert your license key in the "license" property
     1. If you don't have a license key, leave it blank and output will generate with a watermark
