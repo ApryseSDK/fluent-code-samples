@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="FluentCustomCallbacks">
-    <output-path>$PROJECT_DIR$/CustomCallbacksExample/out/artifacts/FluentCustomCallbacks</output-path>
-    <root id="archive" name="FluentCustomCallbacks.jar">
-      <element id="module-output" name="CustomCallbacksExample" />
-    </root>
-  </artifact>
-</component>
