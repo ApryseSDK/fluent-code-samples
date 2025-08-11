@@ -24,7 +24,7 @@ public class BasicXml {
             File fileReport = new File("out/report.pdf");
             fileReport.getParentFile().mkdirs();
 
-            FileInputStream template = new FileInputStream("data/template.docx");
+            FileInputStream template = new FileInputStream("data/BasicXmlTemplate.docx");
             FileOutputStream reportStream = new FileOutputStream(fileReport);
             ProcessReport report = new ProcessPdf(template, reportStream);
 
@@ -32,7 +32,7 @@ public class BasicXml {
             report.processSetup();
             // Set up the datasource. The parameters are connector package, url, username, password.
             // For each type of datasource, the connector package is different
-            DataSourceProvider datasource = new SaxonDataSource(new FileInputStream("data/data.xml"));
+            DataSourceProvider datasource = new SaxonDataSource(new FileInputStream("data/BasicXmlData.xml"));
 
             // Finally, send it to Fluent for processing.  The second parameter is the name of the
             // datasource.  This should match the name used in your template.
