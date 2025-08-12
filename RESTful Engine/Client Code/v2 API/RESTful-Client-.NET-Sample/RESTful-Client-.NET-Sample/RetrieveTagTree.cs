@@ -5,14 +5,10 @@ using WindwardRestApi.src.Model;
 
 namespace RESTful_Client_.NET_Sample
 {
-
-
-    // TODO: In readme add instructions for changing which class to run
-    // In Project > Properties > Application > Startup object, change the startup object to GenerateDocument, RetrieveMetrics or RetrieveTagTree depending on which functionality you want to test.
-
-
-    // dotnet build RESTful-Client-.NET-Sample.csproj -p:StartupObject=RESTful_Client_.NET_Sample.GenerateDocument -t:Rebuild
-    public class GenerateDocument
+    /// <summary>
+    /// Sample code to retrieve template tag tree using the Fluent v2 RESTful Engine Client in .NET.
+    /// </summary>
+    public class RetrieveTagTree
     {
         // Set your RESTful Engine URL in the App.config file under the key "restful-engine-url"
         private static string RESTFUL_ENGINE_URL = ConfigurationManager.AppSettings["restful-engine-url"] ?? "";
@@ -53,52 +49,50 @@ namespace RESTful_Client_.NET_Sample
             template.Datasources = new List<DataSource> { dataSource };
 
             /**
-             * Step 2: GENERATE THE REPORT
+             * Step 2: REQUEST TEMPLATE TAG TREE
              * --------------------------------------------------------------------------------------------
              */
 
-            Console.WriteLine("Generating report...");
+            Console.WriteLine("Requesting Tag Tree...");
 
-            // Post our template generation request to the RESTful Engine
-            Document document = await client.PostDocument(template);
+            // Post our template metrics request to the RESTful Engine
+            TagTree tagTree = await client.PostTagTree(template);
 
-            // Wait until the document generation is complete before proceeding
+            // Wait until retrieving the template tag tree request is finished before proceeding
             while (true)
             {
                 Thread.Sleep(100);
-                HttpStatusCode status = await client.GetDocumentStatus(document.Guid);
+                HttpStatusCode status = await client.GetTagTreeStatus(tagTree.Guid);
                 if (status == HttpStatusCode.Found)
                 {
-                    // The document generation is complete, we can now proceed to retrieve the generated document
+                    // The tag tree retrieval is complete, we can now proceed
                     break;
                 }
                 else if (status == HttpStatusCode.Accepted || status == HttpStatusCode.Created || status == HttpStatusCode.NotFound)
                 {
-                    // The document generation is still in progress, continue waiting
+                    // The tag tree retrieval is still in progress, continue waiting
                     continue;
                 }
                 else
                 {
-                    // Potentially have an error, proceed to retrieve the document to get error details
-                    Console.WriteLine("Error retrieving document. Status code: " + status);
+                    // Potentially have an error, proceed to retrieve the tag tree to get error details
+                    Console.WriteLine("Error retrieving tag tree. Status code: " + status);
                     break;
                 }
             }
 
             /**
-             * Step 3: RETRIEVE THE GENERATED DOCUMENT
+             * Step 3: RETRIEVE THE TAG TREE
              * --------------------------------------------------------------------------------------------
              */
-            Console.WriteLine("Retrieving generated document...");
+            Console.WriteLine("Retrieving Tag Tree...");
+            tagTree = await client.GetTagTree(tagTree.Guid);
 
-            // TODO: Test with invalid license key to make sure retriving errors works as well
-            document = await client.GetDocument(document.Guid);
+            // Write out the tag tree XML to a file
+            string outputFilePath = "../../../files/TagTree.xml";
+            await File.WriteAllBytesAsync(outputFilePath, tagTree.Xml);
 
-            // Write out the generated document to a file (ensure the file format matches the output format specified in the template)
-            string outputFilePath = "../../../files/Output.pdf";
-            await File.WriteAllBytesAsync(outputFilePath, document.Data);
-
-            Console.WriteLine("Generated document saved to: " + outputFilePath);
+            Console.WriteLine("Template Tag Tree saved to: " + outputFilePath);
         }
     }
 }
