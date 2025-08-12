@@ -1,4 +1,4 @@
-# .NET RESTful Client v2 Sample 
+# Fluent .NET RESTful Client v2 Sample 
 
 ## Overview
 This sample project demonstrates how to use the v2 .NET RESTful Client with C# to accomplish:
