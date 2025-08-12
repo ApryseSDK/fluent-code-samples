@@ -22,7 +22,7 @@ This can will be specified like so:
 For example, with the provided template and data source in the *Samples* directory, the arguments would look like:
 
 ```
-"../../../Samples/InvoiceTemplate.docx" "../../../Samples/output.pdf" -xml "../../../Samples/Order.xml"
+"../../../Samples/Fluent_Financial_Report_Template.docx" "../../../Samples/output.pdf" -xml:WRFINANCIAL "../../../Samples/Fluent_Financial_Data.xml"
 ```
 
 In this example, no name was specified for the data source since the template does not contain a specific name for the datasource.
