@@ -86,7 +86,6 @@ namespace RESTful_Client_.NET_Sample
              */
             Console.WriteLine("Retrieving generated document...");
 
-            // TODO: Test with invalid license key to make sure retriving errors works as well
             document = await client.GetDocument(document.Guid);
 
             // Write out the generated document to a file (ensure the file format matches the output format specified in the template)
