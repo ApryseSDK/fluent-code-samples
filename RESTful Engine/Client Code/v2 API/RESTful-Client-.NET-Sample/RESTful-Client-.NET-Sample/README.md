@@ -8,6 +8,12 @@ This sample project demonstrates how to use the v2 .NET RESTful Client with C# t
 
 This project consists of 3 main classes that can each be individually ran to show each piece of functionality.
 
+## Requirements
+* [.NET Installation](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+* A RESTful Engine Installation
+    * For instructions on setting up the RESTful Engine with Docker, please refer to the following [article](https://fluent.apryse.com/documentation/engine-guide/Fluent%20RESTful%20Engines/fluentJavaRESTDocker)
+    * For instructions on setting up the RESTful Engine with Tomcat, please refer to the following [article](https://fluent.apryse.com/documentation/engine-guide/Fluent%20RESTful%20Engines/SettingUptheJavaRESTfulEngine)
+
 ## Visual Studio Usage
 Use the following steps to build and run the sample through Visual Studio.
 
