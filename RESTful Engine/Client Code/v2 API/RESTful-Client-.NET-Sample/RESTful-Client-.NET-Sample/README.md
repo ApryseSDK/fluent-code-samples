@@ -49,4 +49,4 @@ Use the following steps to build and run the sample from the command line.
     1. Alternatively you can run the .dll or .exe file that are produced in the *bin/Debug/netX.0/* folder where *X* is your .NET version
 
 ## Additional Information
-You can find additinal information about the v2 .NET RESTful Clients [here](https://fluent.apryse.com/documentation/engine-guide/Fluent%20RESTful%20Engines/RESTfulNetClient).
+You can find additional information about the v2 .NET RESTful Clients [here](https://fluent.apryse.com/documentation/engine-guide/Fluent%20RESTful%20Engines/RESTfulNetClient).
