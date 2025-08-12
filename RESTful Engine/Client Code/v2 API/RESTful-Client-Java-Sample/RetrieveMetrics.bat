@@ -1,0 +1,1 @@
+mvn clean install -U & mvn compile exec:java -Dexec.mainClass="com.apryse.fluent.RetrieveMetrics" & pause
