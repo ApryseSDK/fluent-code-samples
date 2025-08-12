@@ -13,7 +13,6 @@ namespace RESTful_Client_.NET_Sample
         // Set your RESTful Engine URL in the App.config file under the key "restful-engine-url"
         private static string RESTFUL_ENGINE_URL = ConfigurationManager.AppSettings["restful-engine-url"] ?? "";
 
-        // Initialize the WindwardClient with the RESTful Engine URL
         private static WindwardClient client;
 
         public static async Task Main(string[] args)
@@ -22,7 +21,7 @@ namespace RESTful_Client_.NET_Sample
              * Step 1: INITIALIZE THE RESTFUL CLIENT AND SET UP THE TEMPLATE AND DATA SOURCE
              * --------------------------------------------------------------------------------------------
              */
-            Console.WriteLine("Initializing Windward RESTful Client...");
+            Console.WriteLine("Initializing Fluent RESTful Client...");
 
             // Initialize the RESTful Client
             client = new WindwardClient(new Uri(RESTFUL_ENGINE_URL));
