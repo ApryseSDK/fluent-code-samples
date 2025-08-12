@@ -10,14 +10,10 @@ This project consists of 3 main classes that can each be individually ran to sho
 
 ## Requirements
 * [Java 8 Installation](https://www.oracle.com/java/technologies/downloads/#java8-windows)
-
 * [Maven Installation](https://maven.apache.org/download.cgi) (If you need instructions, follow the ones listed [here](https://maven.apache.org/install.html))
-
-* [A RESTful Engine Installation](https://www.windwardstudios.com/version/version-downloads) 
-    
-    * For instructions on setting up the .NET RESTful engine, please refer to the following [article](https://ohana.windwardstudios.com/m/89237/l/1082342-getting-started-with-net-restful-engine)
-
-    * For instructions on setting up the Java RESTful engine, please refer to the following [article](https://ohana.windwardstudios.com/m/103588/l/1388110-setting-up-the-java-restful-engine-windows-and-linux-21-0-0)
+* A RESTful Engine Installation
+  * For instructions on setting up the RESTful Engine with Docker, please refer to the following [article](https://fluent.apryse.com/documentation/engine-guide/Fluent%20RESTful%20Engines/fluentJavaRESTDocker)
+  * For instructions on setting up the RESTful Engine with Tomcat, please refer to the following [article](https://fluent.apryse.com/documentation/engine-guide/Fluent%20RESTful%20Engines/SettingUptheJavaRESTfulEngine)
 
 ## Intellij Usage
 Use the following steps to build and run the sample through Intellij
@@ -25,10 +21,10 @@ Use the following steps to build and run the sample through Intellij
 1. Open the project folder in Intellij
 2. Open the application.properties file and insert your RESTful Engine URL in the "restful-engine-url" property
 3. Also in the application.properties file and insert your license key in the "license" property
-  1. If you don't have a license key, leave it blank and output will generate with a watermark
-3. In the "Build" dropdown, select "Rebuild Project"
-4. Open the file you would like to run (GenerateDocument.java, RetrieveMetrics.java, or RetrieveTagTree.java)
-5. Click the "Run" button next to the class name in the file
+   1. If you don't have a license key, leave it blank and output will generate with a watermark
+4. In the "Build" dropdown, select "Rebuild Project"
+5. Open the file you would like to run (GenerateDocument.java, RetrieveMetrics.java, or RetrieveTagTree.java)
+6. Click the "Run" button next to the class name in the file
 
 ## Command Line Usage
 The commands for command line usage for each sample can be found in their respective .bat file in the root of the project.
