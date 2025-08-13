@@ -1,0 +1,18 @@
+################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.Net Standard 2.0/samples/RunReport/.vs
+/.Net Standard 2.0/samples/RunReport/obj
+
+**/.idea/workspace.xml
+**/target/
+
+**/obj/
+
+**/vs/
+
+**/node_modules/
+error.log
+package-lock.json
+files/output.docx
