@@ -25,7 +25,7 @@ To run these projects all you need to do is:
 1. Navigate to the `/scripts/` directory
 1. Double click on the corisponding `.bat` file for the project you want to run. Everrything is setup to work out the box.
 
-We offer a handful of sample templates located in the `/files/` directory. The project is setup to run the "InvestmentFactSheet.docx" template (with XML datasource) by default. If you want to run another sample:
+We offer a handful of sample templates located in the `/files/` directory. The project is setup to run the "Manufacturing.docx" template (with XML datasource) by default. If you want to run another sample:
 1. Open the config.ini file
 1. Change the `template_file` and `data_file` values to the sample you want to run
     - Make sure you make the appropriate code changes in the project you are running
