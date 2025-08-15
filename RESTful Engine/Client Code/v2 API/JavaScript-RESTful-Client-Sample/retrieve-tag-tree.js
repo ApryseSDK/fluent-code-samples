@@ -60,7 +60,7 @@ async function main()
         }
         else if (status == 201 || status == 202 || status == 404) {
             // The tag tree request is still in progress, continue waiting
-            break;
+            continue;
         }
         else {
             // Potentially have an error, proceed to retrieve the tag tree to get error details

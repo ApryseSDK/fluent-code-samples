@@ -60,7 +60,7 @@ async function main()
         }
         else if (status == 201 || status == 202 || status == 404) {
             // The document generation is still in progress, continue waiting
-            break;
+            continue;
         }
         else {
             // Potentially have an error, proceed to retrieve the document to get error details
