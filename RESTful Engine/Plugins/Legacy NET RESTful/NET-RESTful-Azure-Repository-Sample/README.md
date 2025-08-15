@@ -5,7 +5,7 @@ This project demonstrates how to implement IRepository for your Legacy .NET REST
 
 ## Usage
 1. Open the .sln in Visual Studio
-2. Grab *WindwardRepository.dll* and *WindwardModels.dll* from the *bin* folder in your Legacy .NET RESTful Engine.
+2. Grab *WindwardRepository.dll*, *WindwardModels.dll* and *RESTfulEngine.dll* from the *bin* folder in your Legacy .NET RESTful Engine.
 3. Make sure you add a reference to those dlls in the Visual Studio Project
     1. Right click on the project in the *Solution Explorer* and Choose "Add > Reference" and browser to those files to add them
 4. Rebuild the project

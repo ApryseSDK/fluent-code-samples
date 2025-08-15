@@ -49,9 +49,6 @@
     <Content Include="ThirdPartyNotice.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="RESTfulEngine">
-      <HintPath>..\..\..\Users\MatthewBinsfeld\Downloads\RESTfulEngine\bin\RESTfulEngine.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -67,12 +64,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <Reference Include="WindwardModels">
-      <HintPath>..\..\..\Users\MatthewBinsfeld\Downloads\RESTfulEngine\bin\WindwardModels.dll</HintPath>
-    </Reference>
-    <Reference Include="WindwardRepository">
-      <HintPath>..\..\..\Users\MatthewBinsfeld\Downloads\RESTfulEngine\bin\WindwardRepository.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Apache.NMS.ActiveMQ">
