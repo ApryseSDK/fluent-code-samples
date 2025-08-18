@@ -21,7 +21,7 @@ This can will be specified like so:
 For example, with the provided template and data source in the *samples* directory, the arguments would look like:
 
 ```
-"samples/InvoiceTemplate.docx" "samples/output.pdf" -xml "samples/Order.xml"
+"samples/Fluent_Financial_Report_Template.docx" "samples/output.pdf" -dom4j:WRFINANCIAL "samples/Fluent_Financial_Data.xml"
 ```
 
 In this example, no name was specified for the data source since the template does not contain a specific name for the datasource.
