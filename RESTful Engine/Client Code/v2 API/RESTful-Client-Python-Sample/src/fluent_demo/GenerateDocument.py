@@ -49,14 +49,35 @@ def main():
 
     print("GUID:", doc.guid)
 
-    #wait for completed status
+
+    #OPTIONAL: Add timeout counter incase something goes wrong
+    MAX_WAIT_SECONDS = 60
+    start = time.time()
+    deadline = start + MAX_WAIT_SECONDS
+    #wait for document to generate, and check status for completion or error
     while True:
+        #If we are passed the alloted time, end execution
+        if time.time() >= deadline:
+            print("Timeout waiting for document to be ready.")
+            break
+
+        # Sleep like the JS example: await sleep(1000)
+        remaining = max(0, deadline - time.time())
+        time.sleep(min(1, remaining))
+
         status = fluent_client.getDocumentStatus(doc.guid)
+
         if status == 302:
+            # The document generation is complete, we can now proceed to retrieve the generated document
             print("Ready:", status)
             break
-        print("Not ready:", status)
-        time.sleep(1)
+        elif status in (201, 202, 404):
+            # The document generation is still in progress, continue waiting
+            continue
+        else:
+            # Potentially have an error
+            raise Exception("Error generating document. Status code:", status)
+            break
 
     # Save output file to output directory
     out_dir = project_root() / "output"
