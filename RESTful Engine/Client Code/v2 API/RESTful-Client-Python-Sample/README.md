@@ -4,7 +4,7 @@
 ## Setup
 NOTE: You NEED to have Python V 3.8.6 (64bit).
 
-Next, locate the `congig.ini` file in the project root. This file contains all the config properties needed to run these samples. Open the file and:
+Next, locate the `config.ini` file in the project root. This file contains all the config properties needed to run these samples. Open the file and:
 1. Set your license
 1. Set the address of your RESTful server
 
