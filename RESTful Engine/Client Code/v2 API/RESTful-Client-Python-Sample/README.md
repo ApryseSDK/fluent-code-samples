@@ -23,7 +23,7 @@ All these python files are located in `/src/fluent_demo/` if you want to explore
 
 To run these projects all you need to do is:
 1. Navigate to the `/scripts/` directory
-1. Double click on the corisponding `.bat` file for the project you want to run. Everrything is setup to work out the box.
+1. Double click on the corisponding `.bat` file for the project you want to run. Everrything is setup to work out the box, and it will install the latest version of the package.
 
 
 To see the object schemas used in this client, check out our [Swagger Documentation](https://app.swaggerhub.com/apis/Windward-Studios/fluent-rest_full_api/2.0)
