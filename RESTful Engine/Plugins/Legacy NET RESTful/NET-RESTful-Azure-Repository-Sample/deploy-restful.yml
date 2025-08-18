@@ -1,0 +1,141 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  buildVersion: $[ variables['version'] ]
+  majorVersion: $[ variables['major'] ]
+  downloadUrl: 'https://cdn.windwardstudios.com/Archive/$(majorVersion).X/$(buildVersion)/RESTfulEngine.zip'
+
+name: $(buildVersion)$(Rev:.r)
+
+
+steps:
+#Restful engine stuff
+- script: python -m pip install --upgrade pip
+  displayName: 'Install pip'
+  
+- script: pip install requests
+  displayName: 'Install requests'
+
+- task: PythonScript@0
+  displayName: 'Download RESTful Engine'
+  inputs:
+    scriptSource: 'inline'
+    script: |
+      from urllib.request import urlretrieve 
+      print('Downloading engine from ', '$(downloadUrl)')
+      urlretrieve('$(downloadUrl)', '$(Build.SourcesDirectory)/RESTfulEngine.zip')
+
+- task: ExtractFiles@1
+  displayName: 'Extract RESTful Engine'
+  inputs:
+    archiveFilePatterns: 'RESTfulEngine.zip'
+    destinationFolder: '$(Build.SourcesDirectory)/publish'
+    cleanDestinationFolder: true
+    overwriteExistingFiles: false
+
+- script: |
+    mkdir temp
+  displayName: Create temp directory
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/publish/RESTfulEngine/bin'
+    Contents: |
+      RESTfulEngine.dll
+      WindwardModels.dll
+      WindwardRepository.dll
+    TargetFolder: '$(Build.SourcesDirectory)/temp/'
+  displayName: Copy RESTfulEngine.dll to temp direcotry
+
+- script: |
+    mkdir dbconnectors
+  displayName: Create dbconnectors Dir
+- task: PythonScript@0
+  displayName: 'Download Db Connector Dlls'
+  inputs:
+    scriptSource: 'inline'
+    script: |
+      import requests
+      from urllib.request import urlretrieve
+      xml = requests.get('https://hubdocumentstorage.blob.core.windows.net/restful-engine-dlls?restype=container&comp=list').text
+      urls = [u.split('<Url>')[1] for u in xml.split('</Url>') if '<Url>' in u]
+      [urlretrieve(u, '$(Build.SourcesDirectory)/dbconnectors/' + u.split('/')[-1]) for u in urls]
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/dbconnectors'
+    Contents: '**'
+    TargetFolder: '$(Build.SourcesDirectory)/publish/RESTfulEngine/bin/'
+    OverWrite: false
+  displayName: Copy db connectors into place (don't overwrite existing dlls)
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: '**.config'
+    TargetFolder: '$(Build.SourcesDirectory)/publish/RESTfulEngine'
+  displayName: Copy transform config files to same location as web.config
+  
+- script: |
+    mkdir finalPublish
+  displayName: Create finalPublish directory
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/publish/'
+    Contents: '**'
+    TargetFolder: '$(Build.SourcesDirectory)/finalPublish'
+  displayName: Copy restful engine to final publish folder
+
+- task: NuGetToolInstaller@1 
+  inputs: 
+    versionSpec: 5.4.0 
+
+- task: NuGetCommand@2
+  displayName: 'NuGet restore AzureRepository'
+  inputs:
+    restoreSolution: AzureRepositoryPlugin.sln
+  condition: succeededOrFailed()
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/temp'
+    Contents: |
+      RESTfulEngine.dll
+      WindwardModels.dll
+      WindwardRepository.dll
+    TargetFolder: '$(Build.SourcesDirectory)/AzureRepository/bin/Release'
+  displayName: Copy RESTfulEngine.dll to AzureRepository bin direcotry
+
+- task: MSBuild@1
+  displayName: 'Build AzureRepository'
+  inputs:
+    solution: AzureRepository.proj
+    msbuildArguments: '/t:build'
+    clean: true
+    maximumCpuCount: true
+  condition: succeededOrFailed()
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/AzureRepository/bin/Release/'
+    Contents: '**'
+    TargetFolder: '$(Build.SourcesDirectory)/finalPublish/RESTfulEngine/bin'
+    OverWrite: false
+  displayName: Copy AzureRepository bin contents to restfulengine bin
+
+- task: PublishBuildArtifacts@1 
+  inputs: 
+    PathtoPublish: '$(Build.SourcesDirectory)/finalPublish' 
+    ArtifactName: 'RESTfulEngineBase' 
+    publishLocation: 'Container'
