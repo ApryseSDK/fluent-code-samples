@@ -1,5 +1,4 @@
-trigger:
- - none
+trigger: none
 
 pool:
   vmImage: 'windows-2022' # Use a Windows agent with Visual Studio and .NET Framework SDKs
@@ -156,7 +155,9 @@ steps:
           Write-Host "Restoring NuGet packages for: $projectPath"
           nuget restore $projectPath
           if ($LASTEXITCODE -ne 0) {
-              Write-Error "NuGet restore FAILED for project: $projectName"
+              $errorMessage = "NuGet restore FAILED for project: $projectName"
+              Write-Error $errorMessage
+              Write-Host "##vso[task.logissue type=error;]$errorMessage"
               $hasFailed = $true
           } else {
               Write-Host "NuGet restore SUCCEEDED."
@@ -165,7 +166,9 @@ steps:
               Write-Host "Building project with MSBuild: $projectPath"
               & $msbuildPath $projectPath /nologo /nr:false /p:Configuration=Debug
               if ($LASTEXITCODE -ne 0) {
-                  Write-Error "Build FAILED for project: $projectName"
+                  $errorMessage = "Build FAILED for project: $projectName"
+                  Write-Error $errorMessage
+                  Write-Host "##vso[task.logissue type=error;]$errorMessage"
                   $hasFailed = $true
               } else {
                   Write-Host "Build SUCCEEDED."
@@ -174,7 +177,9 @@ steps:
                   # Construct the path to the output executable
                   $exePath = Join-Path -Path $project.DirectoryName -ChildPath "bin\Debug\$($project.BaseName).exe"
                   if (-not (Test-Path $exePath)) {
-                      Write-Error "Could not find compiled executable at: $exePath"
+                      $errorMessage = "Could not find compiled executable at: $exePath"
+                      Write-Error $errorMessage
+                      Write-Host "##vso[task.logissue type=error;]$errorMessage"
                       $hasFailed = $true
                   } else {
                       $exeDir = Split-Path -Path $exePath -Parent
@@ -185,7 +190,9 @@ steps:
                       # Execute by name, explicitly referencing the current directory with '.\'
                       & ".\$($project.BaseName).exe"
                       if ($LASTEXITCODE -ne 0) {
-                          Write-Error "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
+                          $errorMessage = "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
+                          Write-Error $errorMessage
+                          Write-Host "##vso[task.logissue type=error;]$errorMessage"
                           $hasFailed = $true
                       } else {
                           Write-Host "Execution SUCCEEDED (Exit Code: 0)."
