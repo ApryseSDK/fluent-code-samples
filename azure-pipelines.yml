@@ -74,6 +74,9 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
+      # Set the script to continue even if a command writes an error
+      $ErrorActionPreference = "Continue"
+
       # Define the specific directory to search for projects
       $searchRoot = "Embedded .NET Engine Samples"
       $searchPath = Join-Path -Path "$(System.DefaultWorkingDirectory)" -ChildPath $searchRoot
