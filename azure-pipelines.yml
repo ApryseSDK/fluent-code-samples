@@ -1,8 +1,7 @@
-# azure-pipelines.yml
 trigger: none
 
 pool:
-  vmImage: 'windows-2022' # Use a Windows agent with Visual Studio and .NET Framework SDKs
+  vmImage: 'windows-2022'
 
 steps:
 - task: NuGetToolInstaller@1
@@ -110,7 +109,7 @@ steps:
               } else {
                   Write-Host "Build SUCCEEDED."
 
-                  # Step 3: Run the compiled .exe
+                  # Step 3: Run the compiled .exe from its default location
                   # Construct the path to the output executable
                   $exePath = Join-Path -Path $project.DirectoryName -ChildPath "bin\Debug\$($project.BaseName).exe"
                   if (-not (Test-Path $exePath)) {
@@ -118,6 +117,8 @@ steps:
                       $hasFailed = $true
                   } else {
                       Write-Host "Executing: $exePath"
+                      # Running the .exe directly will use its containing folder as the working directory,
+                      # which is what the relative path in the code expects.
                       & $exePath
                       if ($LASTEXITCODE -ne 0) {
                           Write-Error "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
