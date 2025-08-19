@@ -7,6 +7,23 @@ steps:
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet'
 
+# New task to install the MySQL ADO.NET Connector
+- task: PowerShell@2
+  displayName: 'Install MySQL Connector/NET'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $msiUrl = "https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-net-8.0.33.msi"
+      $outputFile = "$($env:TEMP)\mysql-connector.msi"
+      
+      Write-Host "Downloading MySQL Connector from $msiUrl..."
+      Invoke-WebRequest -Uri $msiUrl -OutFile $outputFile
+      
+      Write-Host "Installing MySQL Connector silently..."
+      Start-Process msiexec.exe -ArgumentList "/i `"$outputFile`" /quiet /norestart" -Wait
+      
+      Write-Host "MySQL Connector installation completed."
+
 - task: PowerShell@2
   displayName: 'Build and Run All Basic Data Source Projects'
   inputs:
