@@ -72,6 +72,17 @@ steps:
       # Define the list of project folder names to exclude
       $excludedFolders = @("CustomCallbacks", "CustomFunctions", "GenerateAnyDocumentCommandLine", "RunReportDB2")
 
+      # --- Find MSBuild.exe before starting ---
+      # Use the vswhere utility to locate the latest Visual Studio installation path
+      $vsPath = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+      $msbuildPath = Join-Path $vsPath "MSBuild\Current\Bin\MSBuild.exe"
+
+      if (-not (Test-Path $msbuildPath)) {
+          Write-Error "Could not find MSBuild.exe at the expected path: $msbuildPath"
+          exit 1
+      }
+      Write-Host "Found MSBuild at: $msbuildPath"
+
       # Check if the specified directory exists
       if (-not (Test-Path -Path $searchPath -PathType Container)) {
           Write-Error "The specified search directory does not exist: $searchPath"
