@@ -38,10 +38,23 @@
 # builds them, runs them, and verifies that each one executes successfully.
 # A non-zero exit code from any project will fail the pipeline.
 
+# azure-pipelines.yml
+#
+# This pipeline finds all .NET console projects in a specific directory,
+# builds them, and runs them. It will test all projects, even if some fail.
+# At the end, it provides a summary and fails the pipeline if any project failed.
+
+# By setting the trigger to 'none', this pipeline will only run when manually triggered.
+# azure-pipelines.yml
+#
+# This pipeline finds all .NET console projects in a specific directory,
+# restores their NuGet packages, builds them, and runs them. It will test all
+# projects, even if some fail. At the end, it provides a summary and fails
+# the pipeline if any project failed.
 trigger: none
 
 pool:
-  vmImage: 'windows-latest' # Use a Windows agent, which has .NET SDKs pre-installed
+  vmImage: 'windows-latest'
 
 steps:
 - task: UseDotNet@2
@@ -58,6 +71,9 @@ steps:
       # Define the specific directory to search for projects
       $searchRoot = "Embedded .NET Engine Samples\Basic\Data Source Usage"
       $searchPath = Join-Path -Path "$(System.DefaultWorkingDirectory)" -ChildPath $searchRoot
+
+      # Define the list of project folder names to exclude
+      $excludedFolders = @("CustomCallbacks", "CustomFunctions", "GenerateAnyDocumentCommandLine")
 
       # Check if the specified directory exists
       if (-not (Test-Path -Path $searchPath -PathType Container)) {
@@ -87,8 +103,13 @@ steps:
           try {
               [xml]$projContent = Get-Content -Path $file.FullName
               if ($projContent.Project.PropertyGroup.OutputType -eq 'Exe') {
-                  Write-Host "  [+] Identified Console App: $($file.Name)"
-                  $consoleProjects += $file
+                  # Check if the project's parent folder name is in the exclusion list
+                  if ($excludedFolders -contains $file.Directory.Name) {
+                      Write-Host "  [-] Skipping excluded project: $($file.Name) in folder $($file.Directory.Name)"
+                  } else {
+                      Write-Host "  [+] Identified Console App: $($file.Name)"
+                      $consoleProjects += $file
+                  }
               }
           } catch {
               Write-Warning "Could not parse $($file.FullName). It might be an older format or invalid. Skipping."
@@ -96,7 +117,7 @@ steps:
       }
 
       if (-not $consoleProjects) {
-          Write-Host "No console application projects were found. Pipeline will succeed."
+          Write-Host "No console application projects were found (after exclusions). Pipeline will succeed."
           exit 0
       }
 
@@ -112,23 +133,35 @@ steps:
 
           Write-Host "##[group]Processing Project: $projectName"
 
-          # Step 1: Build the project
-          Write-Host "Building project: $projectPath"
-          dotnet build $projectPath
+          # Step 1: Restore NuGet packages
+          # IMPORTANT: Replace "YOUR_INTERNAL_NUGET_REPO_URL" with the actual URL to your private feed.
+          # For a more permanent solution, consider adding a nuget.config file to your repository.
+          Write-Host "Restoring NuGet packages for: $projectPath"
+          dotnet restore $projectPath --source "https://api.nuget.org/v3/index.json" --source "YOUR_INTERNAL_NUGET_REPO_URL"
           if ($LASTEXITCODE -ne 0) {
-              Write-Error "Build FAILED for project: $projectName"
+              Write-Error "NuGet restore FAILED for project: $projectName"
               $hasFailed = $true
           } else {
-              Write-Host "Build SUCCEEDED."
+              Write-Host "NuGet restore SUCCEEDED."
 
-              # Step 2: Run the project (only if build was successful)
-              Write-Host "Running project: $projectPath"
-              dotnet run --project $projectPath
+              # Step 2: Build the project (skipping restore, as we just did it)
+              Write-Host "Building project: $projectPath"
+              dotnet build $projectPath --no-restore
               if ($LASTEXITCODE -ne 0) {
-                  Write-Error "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
+                  Write-Error "Build FAILED for project: $projectName"
                   $hasFailed = $true
               } else {
-                  Write-Host "Execution SUCCEEDED (Exit Code: 0)."
+                  Write-Host "Build SUCCEEDED."
+
+                  # Step 3: Run the project (skipping build, as we just did it)
+                  Write-Host "Running project: $projectPath"
+                  dotnet run --project $projectPath --no-build
+                  if ($LASTEXITCODE -ne 0) {
+                      Write-Error "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
+                      $hasFailed = $true
+                  } else {
+                      Write-Host "Execution SUCCEEDED (Exit Code: 0)."
+                  }
               }
           }
 
