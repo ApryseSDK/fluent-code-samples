@@ -37,6 +37,9 @@
     <PackageReference Include="FluentEngine">
       <Version>*</Version>
     </PackageReference>
+    <PackageReference Include="MySqlConnector">
+      <Version>2.4.0</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RunReportMySQL.cs" />
