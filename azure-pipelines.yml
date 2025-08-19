@@ -15,7 +15,7 @@ steps:
     script: |
       # This script assumes you have downloaded the MySQL Connector MSI and placed it
       # in a 'build-tools' folder in the root of your repository.
-      $msiName = "mysql-connector-net-8.0.33.msi" # Update this if you use a different version
+      $msiName = "mysql-connector-net-9.4.0.msi"
       $msiSourcePath = "$(System.DefaultWorkingDirectory)\build-tools\$msiName"
       $outputFile = "$($env:TEMP)\$msiName"
 
