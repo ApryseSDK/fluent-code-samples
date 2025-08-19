@@ -51,16 +51,23 @@ steps:
       Write-Host "Extracting Oracle Connector from $zipSourcePath..."
       Expand-Archive -Path $zipSourcePath -DestinationPath $extractPath -Force
       
-      # The extracted folder should have the same name as the zip file without the extension
-      $installFolder = Join-Path $extractPath "ODP.NET_Managed_ODAC12cR4"
-      $installScript = Join-Path $installFolder "install_odpm.bat"
+      # --- Debugging Step: List the contents of the extraction directory ---
+      Write-Host "Contents of the extraction folder ($extractPath):"
+      Get-ChildItem -Path $extractPath -Recurse
+      # --- End Debugging Step ---
 
-      if (-not (Test-Path $installScript)) {
-          Write-Error "Could not find install script at '$installScript'."
+      # Find the install script robustly instead of assuming the path
+      $installScript = Get-ChildItem -Path $extractPath -Recurse -Filter "install_odpm.bat" | Select-Object -First 1
+
+      if (-not $installScript) {
+          Write-Error "Could not find install_odpm.bat in the extracted files."
           exit 1
       }
 
-      Write-Host "Running Oracle driver installation script..."
+      $installFolder = $installScript.DirectoryName
+      Write-Host "Found install script at: $($installScript.FullName)"
+      Write-Host "Running Oracle driver installation script from folder: $installFolder"
+      
       Push-Location -Path $installFolder
       & ".\install_odpm.bat" c:\oracle both true
       Pop-Location
