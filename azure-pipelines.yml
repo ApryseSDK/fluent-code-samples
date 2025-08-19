@@ -137,7 +137,7 @@ steps:
           # IMPORTANT: Replace "YOUR_INTERNAL_NUGET_REPO_URL" with the actual URL to your private feed.
           # For a more permanent solution, consider adding a nuget.config file to your repository.
           Write-Host "Restoring NuGet packages for: $projectPath"
-          dotnet restore $projectPath --source "https://api.nuget.org/v3/index.json" --source "YOUR_INTERNAL_NUGET_REPO_URL"
+          dotnet restore $projectPath --source "https://api.nuget.org/v3/index.json"
           if ($LASTEXITCODE -ne 0) {
               Write-Error "NuGet restore FAILED for project: $projectName"
               $hasFailed = $true
