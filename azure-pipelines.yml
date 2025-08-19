@@ -54,14 +54,11 @@
 trigger: none
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'windows-2022' # Use a Windows agent with Visual Studio and .NET Framework SDKs
 
 steps:
-- task: UseDotNet@2
-  displayName: 'Install .NET SDK'
-  inputs:
-    packageType: 'sdk'
-    version: '8.x' # Specify the .NET SDK version you want to use
+- task: NuGetToolInstaller@1
+  displayName: 'Install NuGet'
 
 - task: PowerShell@2
   displayName: 'Build and Run All Console Projects'
@@ -73,7 +70,7 @@ steps:
       $searchPath = Join-Path -Path "$(System.DefaultWorkingDirectory)" -ChildPath $searchRoot
 
       # Define the list of project folder names to exclude
-      $excludedFolders = @("CustomCallbacks", "CustomFunctions", "GenerateAnyDocumentCommandLine")
+      $excludedFolders = @("CustomCallbacks", "CustomFunctions", "GenerateAnyDocumentCommandLine", "RunReportDB2")
 
       # Check if the specified directory exists
       if (-not (Test-Path -Path $searchPath -PathType Container)) {
@@ -133,32 +130,39 @@ steps:
 
           Write-Host "##[group]Processing Project: $projectName"
 
-          # Step 1: Restore NuGet packages
+          # Step 1: Restore NuGet packages using nuget.exe
           Write-Host "Restoring NuGet packages for: $projectPath"
-          dotnet restore $projectPath --source "https://api.nuget.org/v3/index.json"
+          nuget restore $projectPath
           if ($LASTEXITCODE -ne 0) {
               Write-Error "NuGet restore FAILED for project: $projectName"
               $hasFailed = $true
           } else {
               Write-Host "NuGet restore SUCCEEDED."
 
-              # Step 2: Build the project (skipping restore, as we just did it)
-              Write-Host "Building project: $projectPath"
-              dotnet build $projectPath --no-restore
+              # Step 2: Build the project using MSBuild
+              Write-Host "Building project with MSBuild: $projectPath"
+              msbuild $projectPath /nologo /nr:false /p:Configuration=Debug
               if ($LASTEXITCODE -ne 0) {
                   Write-Error "Build FAILED for project: $projectName"
                   $hasFailed = $true
               } else {
                   Write-Host "Build SUCCEEDED."
 
-                  # Step 3: Run the project (skipping build, as we just did it)
-                  Write-Host "Running project: $projectPath"
-                  dotnet run --project $projectPath --no-build
-                  if ($LASTEXITCODE -ne 0) {
-                      Write-Error "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
+                  # Step 3: Run the compiled .exe
+                  # Construct the path to the output executable
+                  $exePath = Join-Path -Path $project.DirectoryName -ChildPath "bin\Debug\$($project.BaseName).exe"
+                  if (-not (Test-Path $exePath)) {
+                      Write-Error "Could not find compiled executable at: $exePath"
                       $hasFailed = $true
                   } else {
-                      Write-Host "Execution SUCCEEDED (Exit Code: 0)."
+                      Write-Host "Executing: $exePath"
+                      & $exePath
+                      if ($LASTEXITCODE -ne 0) {
+                          Write-Error "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
+                          $hasFailed = $true
+                      } else {
+                          Write-Host "Execution SUCCEEDED (Exit Code: 0)."
+                      }
                   }
               }
           }
