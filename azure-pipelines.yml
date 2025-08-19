@@ -1,0 +1,162 @@
+# # ASP.NET Core (.NET Framework)
+# # Build and test ASP.NET Core projects targeting the full .NET Framework.
+# # Add steps that publish symbols, save build artifacts, and more:
+# # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+# trigger:
+# - main
+
+# pool:
+#   vmImage: 'windows-latest'
+
+# variables:
+#   solution: '**/*.sln'
+#   buildPlatform: 'Any CPU'
+#   buildConfiguration: 'Release'
+
+# steps:
+# - task: NuGetToolInstaller@1
+
+# - task: NuGetCommand@2
+#   inputs:
+#     restoreSolution: '$(solution)'
+
+# - task: VSBuild@1
+#   inputs:
+#     solution: '$(solution)'
+#     msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+#     platform: '$(buildPlatform)'
+#     configuration: '$(buildConfiguration)'
+
+# - task: VSTest@2
+#   inputs:
+#     platform: '$(buildPlatform)'
+#     configuration: '$(buildConfiguration)'
+# azure-pipelines.yml
+#
+# This pipeline finds all .NET console projects in a specific directory,
+# builds them, runs them, and verifies that each one executes successfully.
+# A non-zero exit code from any project will fail the pipeline.
+
+trigger: none
+
+pool:
+  vmImage: 'windows-latest' # Use a Windows agent, which has .NET SDKs pre-installed
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Install .NET SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '8.x' # Specify the .NET SDK version you want to use
+
+- task: PowerShell@2
+  displayName: 'Build and Run All Console Projects'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Define the specific directory to search for projects
+      $searchRoot = "Embedded .NET Engine Samples\Basic\Data Source Usage"
+      $searchPath = Join-Path -Path "$(System.DefaultWorkingDirectory)" -ChildPath $searchRoot
+
+      # Check if the specified directory exists
+      if (-not (Test-Path -Path $searchPath -PathType Container)) {
+          Write-Error "The specified search directory does not exist: $searchPath"
+          exit 1
+      }
+
+      Write-Host "Searching for projects in: $searchPath"
+
+      # Find all .csproj files recursively from the specified directory
+      $csprojFiles = Get-ChildItem -Path $searchPath -Recurse -Filter *.csproj
+
+      if (-not $csprojFiles) {
+          Write-Host "No .csproj files found in the specified directory. Pipeline will succeed."
+          exit 0
+      }
+
+      # Initialize lists to track success and failure
+      $successProjects = @()
+      $failedProjects = @()
+
+      Write-Host "Found $($csprojFiles.Count) project files. Filtering for console applications..."
+      $consoleProjects = @()
+
+      # Loop through all found projects to identify which ones are console apps (<OutputType>Exe</OutputType>)
+      foreach ($file in $csprojFiles) {
+          try {
+              [xml]$projContent = Get-Content -Path $file.FullName
+              if ($projContent.Project.PropertyGroup.OutputType -eq 'Exe') {
+                  Write-Host "  [+] Identified Console App: $($file.Name)"
+                  $consoleProjects += $file
+              }
+          } catch {
+              Write-Warning "Could not parse $($file.FullName). It might be an older format or invalid. Skipping."
+          }
+      }
+
+      if (-not $consoleProjects) {
+          Write-Host "No console application projects were found. Pipeline will succeed."
+          exit 0
+      }
+
+      Write-Host "-----------------------------------------------------------------"
+      Write-Host "Starting build and run for $($consoleProjects.Count) identified console project(s)."
+      Write-Host "-----------------------------------------------------------------"
+
+      # Process each identified console project
+      foreach ($project in $consoleProjects) {
+          $projectName = $project.Name
+          $projectPath = $project.FullName
+          $hasFailed = $false
+
+          Write-Host "##[group]Processing Project: $projectName"
+
+          # Step 1: Build the project
+          Write-Host "Building project: $projectPath"
+          dotnet build $projectPath
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "Build FAILED for project: $projectName"
+              $hasFailed = $true
+          } else {
+              Write-Host "Build SUCCEEDED."
+
+              # Step 2: Run the project (only if build was successful)
+              Write-Host "Running project: $projectPath"
+              dotnet run --project $projectPath
+              if ($LASTEXITCODE -ne 0) {
+                  Write-Error "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
+                  $hasFailed = $true
+              } else {
+                  Write-Host "Execution SUCCEEDED (Exit Code: 0)."
+              }
+          }
+
+          # Add the project to the appropriate success or failure list
+          if ($hasFailed) {
+              $failedProjects += $projectName
+          } else {
+              $successProjects += $projectName
+          }
+
+          Write-Host "##[endgroup]"
+      }
+
+      # --- Final Summary ---
+      Write-Host "-----------------------------------------------------------------"
+      Write-Host "Final Summary"
+      Write-Host "-----------------------------------------------------------------"
+      Write-Host "✅ Successful projects: $($successProjects.Count)"
+      $successProjects | ForEach-Object { Write-Host "  - $_" }
+
+      Write-Host "❌ Failed projects: $($failedProjects.Count)"
+      $failedProjects | ForEach-Object { Write-Host "  - $_" }
+      Write-Host "-----------------------------------------------------------------"
+
+      # Fail the pipeline if any project failed
+      if ($failedProjects.Count -gt 0) {
+          Write-Error "$($failedProjects.Count) project(s) failed. See logs for details."
+          exit 1
+      }
+
+      Write-Host "✅ All console projects were built and ran successfully!"
