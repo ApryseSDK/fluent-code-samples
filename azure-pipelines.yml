@@ -71,12 +71,12 @@ steps:
       Write-Host "Oracle Connector installation completed."
 
 - task: PowerShell@2
-  displayName: 'Build and Run All Basic .NET Samples'
+  displayName: 'Build and Run All .NET Samples'
   inputs:
     targetType: 'inline'
     script: |
       # Define the specific directory to search for projects
-      $searchRoot = "Embedded .NET Engine Samples\Basic"
+      $searchRoot = "Embedded .NET Engine Samples"
       $searchPath = Join-Path -Path "$(System.DefaultWorkingDirectory)" -ChildPath $searchRoot
 
       # Define the list of project folder names to exclude
