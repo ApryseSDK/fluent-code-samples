@@ -1,56 +1,4 @@
-# # ASP.NET Core (.NET Framework)
-# # Build and test ASP.NET Core projects targeting the full .NET Framework.
-# # Add steps that publish symbols, save build artifacts, and more:
-# # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
-# trigger:
-# - main
-
-# pool:
-#   vmImage: 'windows-latest'
-
-# variables:
-#   solution: '**/*.sln'
-#   buildPlatform: 'Any CPU'
-#   buildConfiguration: 'Release'
-
-# steps:
-# - task: NuGetToolInstaller@1
-
-# - task: NuGetCommand@2
-#   inputs:
-#     restoreSolution: '$(solution)'
-
-# - task: VSBuild@1
-#   inputs:
-#     solution: '$(solution)'
-#     msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-#     platform: '$(buildPlatform)'
-#     configuration: '$(buildConfiguration)'
-
-# - task: VSTest@2
-#   inputs:
-#     platform: '$(buildPlatform)'
-#     configuration: '$(buildConfiguration)'
 # azure-pipelines.yml
-#
-# This pipeline finds all .NET console projects in a specific directory,
-# builds them, runs them, and verifies that each one executes successfully.
-# A non-zero exit code from any project will fail the pipeline.
-
-# azure-pipelines.yml
-#
-# This pipeline finds all .NET console projects in a specific directory,
-# builds them, and runs them. It will test all projects, even if some fail.
-# At the end, it provides a summary and fails the pipeline if any project failed.
-
-# By setting the trigger to 'none', this pipeline will only run when manually triggered.
-# azure-pipelines.yml
-#
-# This pipeline finds all .NET console projects in a specific directory,
-# restores their NuGet packages, builds them, and runs them. It will test all
-# projects, even if some fail. At the end, it provides a summary and fails
-# the pipeline if any project failed.
 trigger: none
 
 pool:
@@ -82,6 +30,7 @@ steps:
           exit 1
       }
       Write-Host "Found MSBuild at: $msbuildPath"
+      # --- End MSBuild discovery ---
 
       # Check if the specified directory exists
       if (-not (Test-Path -Path $searchPath -PathType Container)) {
@@ -142,6 +91,8 @@ steps:
           Write-Host "##[group]Processing Project: $projectName"
 
           # Step 1: Restore NuGet packages using nuget.exe
+          # IMPORTANT: This step assumes you have a nuget.config file in your repository
+          # that defines your internal and public package sources.
           Write-Host "Restoring NuGet packages for: $projectPath"
           nuget restore $projectPath
           if ($LASTEXITCODE -ne 0) {
@@ -150,9 +101,9 @@ steps:
           } else {
               Write-Host "NuGet restore SUCCEEDED."
 
-              # Step 2: Build the project using MSBuild
+              # Step 2: Build the project using the full path to MSBuild
               Write-Host "Building project with MSBuild: $projectPath"
-              msbuild $projectPath /nologo /nr:false /p:Configuration=Debug
+              & $msbuildPath $projectPath /nologo /nr:false /p:Configuration=Debug
               if ($LASTEXITCODE -ne 0) {
                   Write-Error "Build FAILED for project: $projectName"
                   $hasFailed = $true
