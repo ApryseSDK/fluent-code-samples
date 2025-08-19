@@ -1,7 +1,7 @@
 trigger: none
 
 pool:
-  vmImage: 'windows-2022'
+  vmImage: 'windows-2022' # Use a Windows agent with Visual Studio and .NET Framework SDKs
 
 steps:
 - task: NuGetToolInstaller@1
@@ -109,23 +109,29 @@ steps:
               } else {
                   Write-Host "Build SUCCEEDED."
 
-                  # Step 3: Run the compiled .exe from its default location
+                  # Step 3: Run the compiled .exe
                   # Construct the path to the output executable
                   $exePath = Join-Path -Path $project.DirectoryName -ChildPath "bin\Debug\$($project.BaseName).exe"
                   if (-not (Test-Path $exePath)) {
                       Write-Error "Could not find compiled executable at: $exePath"
                       $hasFailed = $true
                   } else {
-                      Write-Host "Executing: $exePath"
-                      # Running the .exe directly will use its containing folder as the working directory,
-                      # which is what the relative path in the code expects.
-                      & $exePath
+                      $exeDir = Split-Path -Path $exePath -Parent
+                      Write-Host "Setting working directory to executable's location: $exeDir"
+                      Push-Location -Path $exeDir
+                      
+                      Write-Host "Executing: $($project.BaseName).exe"
+                      # Execute by name, as we are now in its directory
+                      & "$($project.BaseName).exe"
                       if ($LASTEXITCODE -ne 0) {
                           Write-Error "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
                           $hasFailed = $true
                       } else {
                           Write-Host "Execution SUCCEEDED (Exit Code: 0)."
                       }
+                      
+                      # Return to the original directory
+                      Pop-Location
                   }
               }
           }
