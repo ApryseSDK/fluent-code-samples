@@ -13,7 +13,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $msiUrl = "https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-net-8.0.33.msi"
+      $msiUrl = "https://dev.mysql.com/get/Downloads/Connector-Net/mysql-connector-net-9.4.0.msi"
       $outputFile = "$($env:TEMP)\mysql-connector.msi"
       
       Write-Host "Downloading MySQL Connector from $msiUrl..."
