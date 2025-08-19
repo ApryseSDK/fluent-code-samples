@@ -7,15 +7,15 @@ steps:
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet'
 
-# New task to install the MySQL ADO.NET Connector from the repository
+# Task to install the MySQL ADO.NET Connector from the repository
 - task: PowerShell@2
   displayName: 'Install MySQL Connector/NET'
   inputs:
     targetType: 'inline'
     script: |
       # This script assumes you have downloaded the MySQL Connector MSI and placed it
-      # in a 'build-tools' folder in the root the repository
-      $msiName = "mysql-connector-net-9.4.0.msi"
+      # in a 'build-tools' folder in the root of your repository.
+      $msiName = "mysql-connector-net-8.0.33.msi" # Update this if you use a different version
       $msiSourcePath = "$(System.DefaultWorkingDirectory)\build-tools\$msiName"
       $outputFile = "$($env:TEMP)\$msiName"
 
@@ -31,6 +31,41 @@ steps:
       Start-Process msiexec.exe -ArgumentList "/i `"$outputFile`" /quiet /norestart" -Wait
       
       Write-Host "MySQL Connector installation completed."
+
+# New task to install the Oracle ADO.NET Connector from the repository
+- task: PowerShell@2
+  displayName: 'Install Oracle ADO.NET Connector'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # This script installs the managed Oracle driver from the zip file in the repository.
+      $zipName = "ODP.NET_Managed_ODAC12cR4.zip"
+      $zipSourcePath = "$(System.DefaultWorkingDirectory)\build-tools\$zipName"
+      $extractPath = "$($env:TEMP)\oracle_driver"
+
+      if (-not (Test-Path $zipSourcePath)) {
+          Write-Error "Oracle Connector ZIP not found at '$zipSourcePath'. Please ensure it is checked into the repository."
+          exit 1
+      }
+      
+      Write-Host "Extracting Oracle Connector from $zipSourcePath..."
+      Expand-Archive -Path $zipSourcePath -DestinationPath $extractPath -Force
+      
+      # The extracted folder should have the same name as the zip file without the extension
+      $installFolder = Join-Path $extractPath "ODP.NET_Managed_ODAC12cR4"
+      $installScript = Join-Path $installFolder "install_odpm.bat"
+
+      if (-not (Test-Path $installScript)) {
+          Write-Error "Could not find install script at '$installScript'."
+          exit 1
+      }
+
+      Write-Host "Running Oracle driver installation script..."
+      Push-Location -Path $installFolder
+      & ".\install_odpm.bat" c:\oracle both true
+      Pop-Location
+      
+      Write-Host "Oracle Connector installation completed."
 
 - task: PowerShell@2
   displayName: 'Build and Run All Basic Data Source Projects'
