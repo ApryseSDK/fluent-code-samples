@@ -80,7 +80,7 @@ steps:
       $searchPath = Join-Path -Path "$(System.DefaultWorkingDirectory)" -ChildPath $searchRoot
 
       # Define the list of project folder names to exclude
-      $excludedFolders = @("CustomCallbacks", "CustomFunctions", "GenerateAnyDocumentCommandLine", "RunReportDB2")
+      $excludedFolders = @("FluentCustomCallbacks", "FluentCustomCallbacksTest", "FluentCustomFunctions", "FluentCustomFunctionsTest", "GenerateAnyDocumentCommandLine", "RunReportDB2")
 
       # --- Find MSBuild.exe before starting ---
       # Use the vswhere utility to locate the latest Visual Studio installation path
