@@ -18,7 +18,7 @@ namespace RunReportJson
             Report.Init();
 
             // Open template file and create output file
-            FileStream template = File.OpenRead("../../../Samples/JSON - Template.docx")
+            FileStream template = File.OpenRead("../../../Samples/JSON - Template.docx");
             FileStream output = File.Create("../../../Samples/Report.pdf");
 
             // Create report process
