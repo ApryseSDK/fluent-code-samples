@@ -8,7 +8,7 @@ steps:
   displayName: 'Install NuGet'
 
 - task: PowerShell@2
-  displayName: 'Build and Run All Console Projects'
+  displayName: 'Build and Run All Basic Data Source Projects'
   inputs:
     targetType: 'inline'
     script: |
@@ -90,8 +90,6 @@ steps:
           Write-Host "##[group]Processing Project: $projectName"
 
           # Step 1: Restore NuGet packages using nuget.exe
-          # IMPORTANT: This step assumes you have a nuget.config file in your repository
-          # that defines your internal and public package sources.
           Write-Host "Restoring NuGet packages for: $projectPath"
           nuget restore $projectPath
           if ($LASTEXITCODE -ne 0) {
@@ -120,9 +118,9 @@ steps:
                       Write-Host "Setting working directory to executable's location: $exeDir"
                       Push-Location -Path $exeDir
                       
-                      Write-Host "Executing: $($project.BaseName).exe"
-                      # Execute by name, as we are now in its directory
-                      & "$($project.BaseName).exe"
+                      Write-Host "Executing: .\$($project.BaseName).exe"
+                      # Execute by name, explicitly referencing the current directory with '.\'
+                      & ".\$($project.BaseName).exe"
                       if ($LASTEXITCODE -ne 0) {
                           Write-Error "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
                           $hasFailed = $true
