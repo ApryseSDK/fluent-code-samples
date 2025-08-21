@@ -427,14 +427,14 @@ namespace AzureRepositoryPlugin
             await UploadBlob(data, guid, _docPerformanceContainer);
         }
 
-        public async Task PostCachedTemplate(CachedTemplate cachedTemplate)
+        public async Task PostCachedTemplate(CachedResource cachedTemplate)
         {
-            await UploadBlob(cachedTemplate, cachedTemplate.TemplateID, _templateContainer);
+            await UploadBlob(cachedTemplate, cachedTemplate.ResourceID, _templateContainer);
         }
 
-        public async Task<CachedTemplate> GetCachedTemplate(Guid guid)
+        public async Task<CachedResource> GetCachedTemplate(Guid guid)
         {
-            return await GetEntityFromBlob<CachedTemplate>(guid, _templateContainer);
+            return await GetEntityFromBlob<CachedResource>(guid, _templateContainer);
         }
 
         public async Task DeleteCachedTemplate(Guid guid)

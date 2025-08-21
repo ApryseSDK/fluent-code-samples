@@ -78,7 +78,7 @@ namespace AzureRepository
             Log.Info("[AzureRepoPlugin] Create REquest Called");
             try
             {
-                var task = Task.Run(async () => await CreateRequestAsync(template, requestType));
+                var task = CreateRequestAsync(template, requestType);
                 task.Wait();
                 string guid = task.Result;
                 return guid;
@@ -306,23 +306,23 @@ namespace AzureRepository
             return docPerf;
         }
 
-        public async void SaveTemplate(CachedTemplate template)
+        public async void SaveTemplate(CachedResource template)
         {
             AzureStorageManager storage = StorageManager.GetAzureStorageManager();
             await storage.PostCachedTemplate(template);
         }
 
-        public CachedTemplate GetTemplate(string templateID)
+        public CachedResource GetResource(string templateID)
         {
             AzureStorageManager storage = StorageManager.GetAzureStorageManager();
-            Task<CachedTemplate> docPerfTask = storage.GetCachedTemplate(Guid.Parse(templateID));
+            Task<CachedResource> docPerfTask = storage.GetCachedTemplate(Guid.Parse(templateID));
             docPerfTask.Wait();
-            CachedTemplate docPerf = docPerfTask.Result;
+            CachedResource docPerf = docPerfTask.Result;
 
             return docPerf;
         }
 
-        public async void DeleteTemplate(string templateID)
+        public async void DeleteResource(string templateID)
         {
             AzureStorageManager storage = StorageManager.GetAzureStorageManager();
             await storage.DeleteCachedTemplate(Guid.Parse(templateID));
