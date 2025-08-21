@@ -833,7 +833,7 @@ namespace SampleRESTfulS3Plugin
         /// Saves a cached template.
         /// </summary>
         /// <param name="template">The cached template to save.</param>
-        public void SaveTemplate(CachedTemplate template)
+        public void SaveTemplate(CachedResource template)
         {
             throw new NotImplementedException();
         }
@@ -844,12 +844,12 @@ namespace SampleRESTfulS3Plugin
         /// </summary>
         /// <param name="templateID">The template identifier.</param>
         /// <returns>The cached template.</returns>
-        public CachedTemplate GetTemplate(string templateID)
+        public CachedResource GetResource(string templateID)
         {
             throw new NotImplementedException();
         }
 
-        public void DeleteTemplate(string templateID)
+        public void DeleteResource(string templateID)
         {
             throw new NotImplementedException();
         }
