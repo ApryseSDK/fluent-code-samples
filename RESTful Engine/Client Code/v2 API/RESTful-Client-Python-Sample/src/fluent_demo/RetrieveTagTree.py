@@ -48,7 +48,7 @@ def main():
     #wait for completed status
     while True:
         status = fluent_client.getTagTreeStatus(tagtree_job.guid)
-        if status == 302:
+        if status == 302 or status == 200:
             print("TagTree ready:", status)
             break
         print("TagTree not ready:", status)
