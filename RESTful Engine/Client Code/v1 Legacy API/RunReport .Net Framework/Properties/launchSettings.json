@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "RunReport": {
+      "commandName": "Project",
+      "commandLineArgs": "InvestmentFactSheet.docx report.pdf -xml:XML2 InvestmentFactSheet.xml",
+      "workingDirectory": "C:\\Windward\\CoreTesting"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "RunReport": {
+      "commandName": "Project",
+      "commandLineArgs": "dave.docx report.pdf -xml:XML2 southwind.xml",
+      "workingDirectory": "c:\\test"
+    }
+  }
+}

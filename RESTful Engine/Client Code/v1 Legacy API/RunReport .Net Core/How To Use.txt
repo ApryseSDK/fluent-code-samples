@@ -1,0 +1,4 @@
+Steps to use:
+-Set location where RESTful engine is runnning in App.config
+-Under Properties/launchSettings.json, change the working directory to the location of your datasource and template.
+-In the same file modify the commandLineArgs to be in the format: {template name} {output name} -{datasource type} {datasource name}
