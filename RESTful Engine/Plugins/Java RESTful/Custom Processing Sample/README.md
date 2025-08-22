@@ -16,11 +16,11 @@ This sample demonstrates how to implement a custom post-processor for the Java R
 
 1. Navigate to the `CustomProcessingSampleJava` directory.
 2. Add the Java RESTful Engine SDK JARs to your classpath (or as Maven dependencies if available).
-3. Compile the `CustomProcessor.java` file:
+3. Build the project using Maven:
    ```sh
-   javac -cp /path/to/restfulengine-sdk.jar CustomProcessor.java
+   mvn clean package
    ```
-   Or use Maven if you have a `pom.xml`.
+   This will create a JAR file in the `target` directory.
 
 ### 3. Deploy the Custom Processor
 
