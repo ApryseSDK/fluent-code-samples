@@ -1,0 +1,237 @@
+trigger: none
+
+pool:
+  vmImage: 'windows-2022' # Use a Windows agent with Visual Studio and .NET Framework SDKs
+
+steps:
+- task: NuGetToolInstaller@1
+  displayName: 'Install NuGet'
+
+# Task to install the MySQL ADO.NET Connector from the repository
+- task: PowerShell@2
+  displayName: 'Install MySQL Connector/NET'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # This script assumes you have downloaded the MySQL Connector MSI and placed it
+      # in a 'build-tools' folder in the root of your repository.
+      $msiName = "mysql-connector-net-9.4.0.msi"
+      $msiSourcePath = "$(System.DefaultWorkingDirectory)\build-tools\$msiName"
+      $outputFile = "$($env:TEMP)\$msiName"
+
+      if (-not (Test-Path $msiSourcePath)) {
+          Write-Error "MySQL Connector MSI not found at '$msiSourcePath'. Please ensure it is checked into the repository."
+          exit 1
+      }
+      
+      Write-Host "Copying MySQL Connector from the repository to the temp directory..."
+      Copy-Item -Path $msiSourcePath -Destination $outputFile
+      
+      Write-Host "Installing MySQL Connector silently..."
+      Start-Process msiexec.exe -ArgumentList "/i `"$outputFile`" /quiet /norestart" -Wait
+      
+      Write-Host "MySQL Connector installation completed."
+
+# New task to install the Oracle ADO.NET Connector from the repository
+- task: PowerShell@2
+  displayName: 'Install Oracle ADO.NET Connector'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # This script installs the managed Oracle driver from the zip file in the repository.
+      $zipName = "ODP.NET_Managed_ODAC12cR4.zip"
+      $zipSourcePath = "$(System.DefaultWorkingDirectory)\build-tools\$zipName"
+      $extractPath = "$($env:TEMP)\oracle_driver"
+
+      if (-not (Test-Path $zipSourcePath)) {
+          Write-Error "Oracle Connector ZIP not found at '$zipSourcePath'. Please ensure it is checked into the repository."
+          exit 1
+      }
+      
+      Write-Host "Extracting Oracle Connector from $zipSourcePath..."
+      Expand-Archive -Path $zipSourcePath -DestinationPath $extractPath -Force
+
+      # Find the install script robustly instead of assuming the path
+      $installScript = Get-ChildItem -Path $extractPath -Recurse -Filter "install_odpm.bat" | Select-Object -First 1
+
+      if (-not $installScript) {
+          Write-Error "Could not find install_odpm.bat in the extracted files."
+          exit 1
+      }
+
+      $installFolder = $installScript.DirectoryName
+      Write-Host "Found install script at: $($installScript.FullName)"
+      Write-Host "Running Oracle driver installation script from folder: $installFolder"
+      
+      Push-Location -Path $installFolder
+      & ".\install_odpm.bat" c:\oracle both true
+      Pop-Location
+      
+      Write-Host "Oracle Connector installation completed."
+
+- task: PowerShell@2
+  displayName: 'Build and Run All .NET Samples'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Set the script to continue even if a command writes an error
+      $ErrorActionPreference = "Continue"
+
+      # Define the specific directory to search for projects
+      $searchRoot = "Embedded .NET Engine Samples"
+      $searchPath = Join-Path -Path "$(System.DefaultWorkingDirectory)" -ChildPath $searchRoot
+
+      # Define the list of project folder names to exclude
+      $excludedFolders = @("FluentCustomCallbacks", "FluentCustomCallbacksTest", "FluentCustomFunctions", "FluentCustomFunctionsTest", "GenerateAnyDocumentCommandLine", "RunReportDB2")
+
+      # --- Find MSBuild.exe before starting ---
+      # Use the vswhere utility to locate the latest Visual Studio installation path
+      $vsPath = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+      $msbuildPath = Join-Path $vsPath "MSBuild\Current\Bin\MSBuild.exe"
+
+      if (-not (Test-Path $msbuildPath)) {
+          Write-Error "Could not find MSBuild.exe at the expected path: $msbuildPath"
+          exit 1
+      }
+      Write-Host "Found MSBuild at: $msbuildPath"
+      # --- End MSBuild discovery ---
+
+      # Check if the specified directory exists
+      if (-not (Test-Path -Path $searchPath -PathType Container)) {
+          Write-Error "The specified search directory does not exist: $searchPath"
+          exit 1
+      }
+
+      Write-Host "Searching for projects in: $searchPath"
+
+      # Find all .csproj files recursively from the specified directory
+      $csprojFiles = Get-ChildItem -Path $searchPath -Recurse -Filter *.csproj
+
+      if (-not $csprojFiles) {
+          Write-Host "No .csproj files found in the specified directory. Pipeline will succeed."
+          exit 0
+      }
+
+      # Initialize lists to track success and failure
+      $successProjects = @()
+      $failedProjects = @()
+
+      Write-Host "Found $($csprojFiles.Count) project files. Filtering for console applications..."
+      $consoleProjects = @()
+
+      # Loop through all found projects to identify which ones are console apps (<OutputType>Exe</OutputType>)
+      foreach ($file in $csprojFiles) {
+          try {
+              [xml]$projContent = Get-Content -Path $file.FullName
+              if ($projContent.Project.PropertyGroup.OutputType -eq 'Exe') {
+                  # Check if the project's parent folder name is in the exclusion list
+                  if ($excludedFolders -contains $file.Directory.Name) {
+                      Write-Host "  [-] Skipping excluded project: $($file.Name) in folder $($file.Directory.Name)"
+                  } else {
+                      Write-Host "  [+] Identified Console App: $($file.Name)"
+                      $consoleProjects += $file
+                  }
+              }
+          } catch {
+              Write-Warning "Could not parse $($file.FullName). It might be an older format or invalid. Skipping."
+          }
+      }
+
+      if (-not $consoleProjects) {
+          Write-Host "No console application projects were found (after exclusions). Pipeline will succeed."
+          exit 0
+      }
+
+      Write-Host "-----------------------------------------------------------------"
+      Write-Host "Starting build and run for $($consoleProjects.Count) identified console project(s)."
+      Write-Host "-----------------------------------------------------------------"
+
+      # Process each identified console project
+      foreach ($project in $consoleProjects) {
+          $projectName = $project.Name
+          $projectPath = $project.FullName
+          $hasFailed = $false
+
+          Write-Host "##[group]Processing Project: $projectName"
+
+          # Step 1: Restore NuGet packages using nuget.exe
+          Write-Host "Restoring NuGet packages for: $projectPath"
+          nuget restore $projectPath
+          if ($LASTEXITCODE -ne 0) {
+              $errorMessage = "NuGet restore FAILED for project: $projectName"
+              Write-Error $errorMessage
+              Write-Host "##vso[task.logissue type=error;]$errorMessage"
+              $hasFailed = $true
+          } else {
+              Write-Host "NuGet restore SUCCEEDED."
+
+              # Step 2: Build the project using the full path to MSBuild
+              Write-Host "Building project with MSBuild: $projectPath"
+              & $msbuildPath $projectPath /nologo /nr:false /p:Configuration=Debug
+              if ($LASTEXITCODE -ne 0) {
+                  $errorMessage = "Build FAILED for project: $projectName"
+                  Write-Error $errorMessage
+                  Write-Host "##vso[task.logissue type=error;]$errorMessage"
+                  $hasFailed = $true
+              } else {
+                  Write-Host "Build SUCCEEDED."
+
+                  # Step 3: Run the compiled .exe
+                  # Construct the path to the output executable
+                  $exePath = Join-Path -Path $project.DirectoryName -ChildPath "bin\Debug\$($project.BaseName).exe"
+                  if (-not (Test-Path $exePath)) {
+                      $errorMessage = "Could not find compiled executable at: $exePath"
+                      Write-Error $errorMessage
+                      Write-Host "##vso[task.logissue type=error;]$errorMessage"
+                      $hasFailed = $true
+                  } else {
+                      $exeDir = Split-Path -Path $exePath -Parent
+                      Write-Host "Setting working directory to executable's location: $exeDir"
+                      Push-Location -Path $exeDir
+                      
+                      Write-Host "Executing: .\$($project.BaseName).exe"
+                      # Execute by name, explicitly referencing the current directory with '.\'
+                      & ".\$($project.BaseName).exe"
+                      if ($LASTEXITCODE -ne 0) {
+                          $errorMessage = "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
+                          Write-Error $errorMessage
+                          Write-Host "##vso[task.logissue type=error;]$errorMessage"
+                          $hasFailed = $true
+                      } else {
+                          Write-Host "Execution SUCCEEDED (Exit Code: 0)."
+                      }
+                      
+                      # Return to the original directory
+                      Pop-Location
+                  }
+              }
+          }
+
+          # Add the project to the appropriate success or failure list
+          if ($hasFailed) {
+              $failedProjects += $projectName
+          } else {
+              $successProjects += $projectName
+          }
+
+          Write-Host "##[endgroup]"
+      }
+
+      # --- Final Summary ---
+      Write-Host "-----------------------------------------------------------------"
+      Write-Host "Final Summary"
+      Write-Host "-----------------------------------------------------------------"
+      Write-Host "✅ Successful projects: $($successProjects.Count)"
+      $successProjects | ForEach-Object { Write-Host "  - $_" }
+
+      Write-Host "❌ Failed projects: $($failedProjects.Count)"
+      $failedProjects | ForEach-Object { Write-Host "  - $_" }
+      Write-Host "-----------------------------------------------------------------"
+
+      # Fail the pipeline if any project failed
+      if ($failedProjects.Count -gt 0) {
+          Write-Error "$($failedProjects.Count) project(s) failed. See logs for details."
+          exit 1
+      }
+
+      Write-Host "✅ All console projects were built and ran successfully!"
