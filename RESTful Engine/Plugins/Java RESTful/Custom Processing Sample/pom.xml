@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.apryse.fluent</groupId>
-    <artifactId>S3Repository</artifactId>
+    <artifactId>CustomProcessor</artifactId>
     <version>1.0.0</version>
 
     <properties>
@@ -58,7 +58,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <mainClass>S3RepositoryPlugin.S3Repository</mainClass>
+                                    <mainClass>com.example.customprocessing.CustomProcessor</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>
