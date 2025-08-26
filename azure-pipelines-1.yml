@@ -11,11 +11,6 @@ steps:
     jdkArchitectureOption: 'x64'
     jdkSourceOption: 'PreInstalled'
 
-- task: Maven@3
-  displayName: 'Set Maven Version'
-  inputs:
-    mavenVersion: '3.8.5' # Specify the Maven version you need
-
 - task: PowerShell@2
   displayName: 'Build and Run All Java Maven Projects'
   inputs:
