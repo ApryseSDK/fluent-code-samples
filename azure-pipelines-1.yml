@@ -11,6 +11,8 @@ steps:
     jdkArchitectureOption: 'x64'
     jdkSourceOption: 'PreInstalled'
 
+# The MavenToolInstaller task has been removed as Maven is pre-installed on the agent.
+
 - task: PowerShell@2
   displayName: 'Build and Run All Java Maven Projects'
   inputs:
@@ -87,7 +89,7 @@ steps:
 
           Write-Host "##[group]Processing Project: $projectName"
 
-          # Step 1: Build the project using Maven
+          # Step 1: Build the project using Maven (compiles and downloads dependencies)
           Write-Host "Building project with 'mvn clean install' in: $projectDir"
           Push-Location -Path $projectDir
           mvn clean install
@@ -99,28 +101,16 @@ steps:
           } else {
               Write-Host "Maven build SUCCEEDED."
 
-              # Step 2: Find and run the compiled .jar file
-              $targetDir = Join-Path -Path $projectDir -ChildPath "target"
-              # Find the primary executable jar, excluding sources and javadoc jars
-              $jarFile = Get-ChildItem -Path $targetDir -Filter *.jar | Where-Object { $_.Name -notlike "*-sources.jar" -and $_.Name -notlike "*-javadoc.jar" } | Select-Object -First 1
-
-              if (-not $jarFile) {
-                  $errorMessage = "Could not find a compiled .jar file in the '$targetDir' directory for project: $projectName"
+              # Step 2: Run the project using the exec-maven-plugin
+              Write-Host "Executing project with 'mvn exec:java'"
+              mvn exec:java
+              if ($LASTEXITCODE -ne 0) {
+                  $errorMessage = "Execution FAILED for project: $projectName. 'mvn exec:java' returned a non-zero exit code: $LASTEXITCODE"
                   Write-Error $errorMessage
                   Write-Host "##vso[task.logissue type=error;]$errorMessage"
                   $hasFailed = $true
               } else {
-                  $jarPath = $jarFile.FullName
-                  Write-Host "Executing: java -jar $jarPath"
-                  java -jar $jarPath
-                  if ($LASTEXITCODE -ne 0) {
-                      $errorMessage = "Execution FAILED for project: $projectName. The application returned a non-zero exit code: $LASTEXITCODE"
-                      Write-Error $errorMessage
-                      Write-Host "##vso[task.logissue type=error;]$errorMessage"
-                      $hasFailed = $true
-                  } else {
-                      Write-Host "Execution SUCCEEDED (Exit Code: 0)."
-                  }
+                  Write-Host "Execution SUCCEEDED (Exit Code: 0)."
               }
           }
           
