@@ -102,8 +102,21 @@ steps:
               Write-Host "Maven build SUCCEEDED."
 
               # Step 2: Run the project using the exec-maven-plugin
-              Write-Host "Executing project with 'mvn exec:java'"
-              mvn exec:java
+              # Parse pom.xml to construct the fully qualified main class name
+              [xml]$pomContent = Get-Content -Path $project.FullName
+              $groupId = $pomContent.project.groupId
+              $artifactId = $pomContent.project.artifactId
+
+              # Handle cases where groupId might be inherited from a parent pom
+              if (-not $groupId -and $pomContent.project.parent) {
+                  $groupId = $pomContent.project.parent.groupId
+              }
+
+              # Construct the main class name based on convention (e.g., com.example.MyProject)
+              $mainClass = "$groupId.$artifactId"
+
+              Write-Host "Executing project with 'mvn exec:java' and main class '$mainClass'"
+              mvn exec:java -Dexec.mainClass="$mainClass"
               if ($LASTEXITCODE -ne 0) {
                   $errorMessage = "Execution FAILED for project: $projectName. 'mvn exec:java' returned a non-zero exit code: $LASTEXITCODE"
                   Write-Error $errorMessage
