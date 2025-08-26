@@ -22,7 +22,7 @@ public class BasicJson {
             File fileReport = new File("out/report.pdf");
             fileReport.getParentFile().mkdirs();
 
-            FileInputStream template = new FileInputStream("data/template.docx")
+            FileInputStream template = new FileInputStream("data/template.docx");
             FileOutputStream reportStream = new FileOutputStream(fileReport);
             ProcessReport report = new ProcessPdf(template, reportStream);
 
