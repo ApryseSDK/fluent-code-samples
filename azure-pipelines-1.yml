@@ -19,12 +19,12 @@ jobs:
   - checkout: self
 
   # STEP 2: LOGIN TO ECR, PULL IMAGE, AND START SERVER
-  # This task properly authenticates with AWS before running the script
   - task: AWSShellScript@1
     displayName: 'Login, Pull from ECR, and Start Server'
     inputs:
-      awsCredentials: 'AWS ECR' # Your service connection name
+      awsCredentials: 'AWS ECR'
       regionName: $(awsRegion)
+      # ---- THIS 'script:' KEY WAS MISSING ----
       script: |
         # 1. Get the AWS Account ID. This will now be authenticated.
         AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
