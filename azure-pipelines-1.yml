@@ -49,6 +49,7 @@ jobs:
     inputs:
       command: 'build'
       projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+      workingDirectory: '$(dotnetProjectPath)/bin/Debug/net8.0'
 
   - task: DotNetCoreCLI@2
     displayName: 'Run .NET Sample'
