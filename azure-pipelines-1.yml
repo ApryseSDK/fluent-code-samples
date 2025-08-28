@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  dockerImage: 'public.ecr.aws/apryse/fluent-restful:LATEST'
+  dockerImage: 'public.ecr.aws/apryse/fluent-restful:latest'
   containerName: 'fluent-restful-server'
 
 jobs:
