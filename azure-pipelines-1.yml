@@ -2,7 +2,7 @@ trigger:
 - none
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest' # Changed to a Windows runner
 
 jobs:
 - job: build_and_test_all_samples
@@ -18,58 +18,65 @@ jobs:
   # STEP 1: CHECKOUT CODE
   - checkout: self
 
-  # STEP 2A: Write the script logic to a file
-  - bash: |
-      # This command block writes everything between <<'EOF' and EOF into a new file.
-      cat > ./run_docker_steps.sh <<'EOF'
-      #!/bin/bash
+  # STEP 2A: Write the script logic to a PowerShell file (.ps1)
+  - powershell: |
+      # This command block writes everything between @' and '@ into a new file.
+      @'
       # Exit immediately if a command fails
-      set -e
+      $ErrorActionPreference = "Stop"
 
-      echo "Getting AWS Account ID..."
-      AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      Write-Host "Getting AWS Account ID..."
+      $AWS_ACCOUNT_ID = (Get-STSCallerIdentity).Account
       
-      IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/fluent-restful-nightly:latest"
+      $IMAGE_URI = "$($AWS_ACCOUNT_ID).dkr.ecr.us-east-1.amazonaws.com/fluent-restful-nightly:latest"
 
-      echo "Logging in to ECR..."
-      aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com"
+      Write-Host "Logging in to ECR..."
+      Get-ECRLoginCommand -Region us-east-1 | Invoke-Expression
       
-      echo "Pulling image: $IMAGE_URI"
-      docker pull "$IMAGE_URI"
+      Write-Host "Pulling image: $IMAGE_URI"
+      docker pull $IMAGE_URI
 
-      echo "Starting container with image: $IMAGE_URI"
-      docker run -d --name fluent-restful-server -p 8080:8080 "$IMAGE_URI"
+      Write-Host "Starting container with image: $IMAGE_URI"
+      docker run -d --name fluent-restful-server -p 8080:8080 $IMAGE_URI
       
-      echo "Waiting for the server to be ready..."
-      timeout=100
-      while ! curl -s --fail http://localhost:8080/v2/version; do
-        sleep 5
-        timeout=$(($timeout - 5))
-        if [ $timeout -le 0 ]; then
-          echo "Error: Server did not become ready in time."
-          docker logs fluent-restful-server
-          exit 1
-        fi
-        echo "Still waiting..."
-      done
-      echo "✅ Server is up and running!"
-      EOF
+      Write-Host "Waiting for the server to be ready..."
+      $timeout = 100
+      while ($true) {
+          try {
+              $response = Invoke-WebRequest -Uri "http://localhost:8080/v2/version" -UseBasicParsing
+              if ($response.StatusCode -eq 200) {
+                  Write-Host "✅ Server is up and running!"
+                  break
+              }
+          }
+          catch {}
+          
+          Start-Sleep -Seconds 5
+          $timeout -= 5
+          if ($timeout -le 0) {
+              Write-Host "Error: Server did not become ready in time."
+              docker logs fluent-restful-server
+              exit 1
+          }
+          Write-Host "Still waiting..."
+      }
+      '@ | Set-Content -Path ./run_docker_steps.ps1
     displayName: 'Create Docker Steps Script'
 
   # STEP 2B: Execute the script file with AWS credentials
-  - task: AWSShellScript@1
+  - task: AWSPowerShellModuleScript@1
     displayName: 'Login, Pull from ECR, and Start Server'
     inputs:
       awsCredentials: 'AWS ECR'
       regionName: $(awsRegion)
-      # Tell the task to execute the file we just created
-      filePath: './run_docker_steps.sh'
+      filePath: './run_docker_steps.ps1'
 
   # STEP 3: BUILD AND TEST .NET
-  - script: |
-      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
-      echo "Verifying App.config:"
-      cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
+  - powershell: |
+      $configFile = "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
+      (Get-Content $configFile) -replace '\[YOUR_RESTFUL_SERVER\]', '$(webserverUrl)' | Set-Content $configFile
+      Write-Host "Verifying App.config:"
+      Get-Content $configFile
     displayName: 'Update & Verify .NET App.config'
 
   - task: DotNetCoreCLI@2
@@ -78,58 +85,18 @@ jobs:
       command: 'build'
       projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
 
-  - script: |
-      # 1. Change to the directory where the compiled .exe/.dll is
-      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/bin/Debug/net8.0"
-
-      # 2. Execute the compiled application directly
+  - powershell: |
+      Set-Location "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/bin/Debug/net8.0"
       dotnet RESTful-Client-.NET-Sample.dll
     displayName: 'Run .NET Sample from output directory'
 
-  # STEP 4: BUILD AND TEST JAVA
-  - script: |
-      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
-      echo "Verifying application.properties:"
-      cat "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
+  # STEP 4: BUILD AND TEST JAVA (Now runs the .bat file)
+  - powershell: |
+      $configFile = "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
+      (Get-Content $configFile) -replace '\[YOUR_RESTFUL_SERVER\]', '$(webserverUrl)' | Set-Content $configFile
     displayName: 'Update & Verify Java application.properties'
 
-  - script: |
-      # First, change the directory to the root of the Java project
-      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
-
-      # Now, run the Maven command from the correct working directory
-      # We also update the config file here to keep the logic together
-      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "src/main/resources/application.properties"
-      echo "Verifying application.properties:"
-      cat "src/main/resources/application.properties"
-
-      # Execute the build and run goals
-      mvn package exec:java
-    displayName: 'Build and Run Java Sample'
-
-  # # STEP 5: BUILD AND TEST JAVASCRIPT
-  # - script: |
-  #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
-  #   displayName: 'Update JavaScript config.json'
-
-  # - script: |
-  #     cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
-  #     npm install
-  #     npm start
-  #   displayName: 'Run JavaScript Project'
-
-  # # STEP 6: BUILD AND TEST PYTHON
-  # - task: UsePythonVersion@0
-  #   inputs:
-  #     versionSpec: '3.x'
-  #   displayName: 'Use Python 3.x'
-
-  # - script: |
-  #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample/config.ini"
-  #   displayName: 'Update Python config.ini'
-
-  # - script: |
-  #     cd "RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
-  #     pip install -r requirements.txt
-  #     python main.py
-  #   displayName: 'Run Python Project'
+  - powershell: |
+      Set-Location "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
+      .\GenerateDocument.bat
+    displayName: 'Run Java Sample using GenerateDocument.bat'
