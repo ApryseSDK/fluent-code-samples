@@ -105,27 +105,34 @@ jobs:
       # 5. Run the script
       ./GenerateDocument.sh
     displayName: 'Build and Run Java Sample with script'
-  # - script: |
-  #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
-  #     echo "Verifying application.properties:"
-  #     cat "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
-  #   displayName: 'Update & Verify Java application.properties'
 
-  # - script: |
-  #     # First, change the directory to the root of the Java project
-  #     cd "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
+  # STEP 5: BUILD AND TEST PYTHON (Updated to run GenerateDocument.sh)
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+    displayName: 'Use Python 3.x'
 
-  #     # Now, run the Maven command from the correct working directory
-  #     # We also update the config file here to keep the logic together
-  #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "src/main/resources/application.properties"
-  #     echo "Verifying application.properties:"
-  #     cat "src/main/resources/application.properties"
+  - script: |
+      # 1. Define the project directory
+      PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
 
-  #     # Execute the build and run goals
-  #     mvn package exec:java
-    # displayName: 'Build and Run Java Sample'
+      # 2. Update the config.ini file
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "$PYTHON_PROJECT_DIR/config.ini"
+      
+      # 3. Change to the Python project directory
+      cd "$PYTHON_PROJECT_DIR"
 
-  # # STEP 5: BUILD AND TEST JAVASCRIPT
+      # 4. Install dependencies
+      pip install -r requirements.txt
+
+      # 5. Make the script executable
+      chmod +x scripts/GenerateDocument.sh
+
+      # 6. Run the script
+      ./scripts/GenerateDocument.sh
+    displayName: 'Run Python Sample with script'
+
+  # # STEP 6: BUILD AND TEST JAVASCRIPT
   # - script: |
   #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
   #   displayName: 'Update JavaScript config.json'
@@ -135,19 +142,3 @@ jobs:
   #     npm install
   #     npm start
   #   displayName: 'Run JavaScript Project'
-
-  # # STEP 6: BUILD AND TEST PYTHON
-  # - task: UsePythonVersion@0
-  #   inputs:
-  #     versionSpec: '3.x'
-  #   displayName: 'Use Python 3.x'
-
-  # - script: |
-  #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample/config.ini"
-  #   displayName: 'Update Python config.ini'
-
-  # - script: |
-  #     cd "RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
-  #     pip install -r requirements.txt
-  #     python main.py
-  #   displayName: 'Run Python Project'
