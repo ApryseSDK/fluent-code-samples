@@ -102,8 +102,26 @@ jobs:
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
       cd "$JAVA_PROJECT_DIR"
       chmod +x GenerateDocument.sh
-      ./GenerateDocument.sh
+      ./scripts/GenerateDocument.sh
     displayName: 'Build and Run Java Client Sample (GenerateDocument)'
+    continueOnError: true
+
+  - script: |
+      # This step runs the build script
+      JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
+      cd "$JAVA_PROJECT_DIR"
+      chmod +x RetrieveMetrics.sh
+      ./scripts/RetrieveMetrics.sh
+    displayName: 'Build and Run Java Client Sample (RetrieveMetrics)'
+    continueOnError: true
+
+  - script: |
+      # This step runs the build script
+      JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
+      cd "$JAVA_PROJECT_DIR"
+      chmod +x RetrieveTagTree.sh
+      ./scripts/RetrieveTagTree.sh
+    displayName: 'Build and Run Java Client Sample (RetrieveTagTree)'
     continueOnError: true
 
   # STEP 5: BUILD AND TEST PYTHON CLIENT SAMPLE
