@@ -64,7 +64,7 @@ jobs:
       regionName: $(awsRegion)
       filePath: './run_docker_steps.sh'
 
-  # STEP 3: BUILD AND TEST .NET CLIENT SAMPLE
+  # STEP 3: BUILD AND TEST .NET CLIENT SAMPLES
   - script: |
       sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
       echo "Verifying App.config:"
@@ -87,7 +87,7 @@ jobs:
     displayName: 'Run .NET Client Sample (GenerateDocument)'
     continueOnError: true
 
-  # STEP 4: BUILD AND TEST JAVA CLIENT SAMPLE
+  # STEP 4: BUILD AND TEST JAVA CLIENT SAMPLES
   - script: |
       # This step only updates the config file
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
@@ -124,31 +124,49 @@ jobs:
     displayName: 'Build and Run Java Client Sample (RetrieveTagTree)'
     continueOnError: true
 
-  # STEP 5: BUILD AND TEST PYTHON CLIENT SAMPLE
+  # STEP 5: BUILD AND TEST PYTHON CLIENT SAMPLES
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.x'
     displayName: 'Use Python 3.x'
 
   - script: |
-      # 1. Define the project directory
+      # This step only updates the config file
       PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
-
-      # 2. Update the config.ini file
       sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "$PYTHON_PROJECT_DIR/config.ini"
-      
-      # 3. Change to the Python project directory
+      echo "Verifying config.ini:"
+      cat "$PYTHON_PROJECT_DIR/config.ini"
+    displayName: 'Update & Verify Python config.ini'
+    continueOnError: true
+
+  - script: |
+      # This step installs dependencies and runs the script
+      PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
       cd "$PYTHON_PROJECT_DIR"
-
-      # 4. Install dependencies
       pip install -r requirements.txt
-
-      # 5. Make the script executable
       chmod +x scripts/GenerateDocument.sh
-
-      # 6. Run the script
       ./scripts/GenerateDocument.sh
     displayName: 'Run Python Client Sample (GenerateDocument)'
+    continueOnError: true
+
+  - script: |
+      # This step installs dependencies and runs the script
+      PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
+      cd "$PYTHON_PROJECT_DIR"
+      pip install -r requirements.txt
+      chmod +x scripts/RetrieveMetrics.sh
+      ./scripts/RetrieveMetrics.sh
+    displayName: 'Run Python Client Sample (RetrieveMetrics)'
+    continueOnError: true
+
+  - script: |
+      # This step installs dependencies and runs the script
+      PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
+      cd "$PYTHON_PROJECT_DIR"
+      pip install -r requirements.txt
+      chmod +x scripts/RetrieveTagTree.sh
+      ./scripts/RetrieveTagTree.sh
+    displayName: 'Run Python Client Sample (RetrieveTagTree)'
     continueOnError: true
 
   # # STEP 6: BUILD AND TEST JAVASCRIPT CLIENT SAMPLE
