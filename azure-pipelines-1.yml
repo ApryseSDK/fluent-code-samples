@@ -30,6 +30,12 @@ jobs:
   - script: |
       sed -i 's|[YOUR_RESTFUL_SERVER]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
     displayName: 'Update App.config'
+
+  - script: |
+      echo "Verifying content of App.config:"
+      cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
+    displayName: 'Verify App.config Update'
+    
   - task: DotNetCoreCLI@2
     displayName: 'Build .NET Sample'
     inputs:
@@ -51,6 +57,12 @@ jobs:
   - script: |
       sed -i 's|[YOUR_RESTFUL_SERVER]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
     displayName: 'Update application.properties'
+
+  - script: |
+      echo "Verifying content of application.properties:"
+      cat "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
+    displayName: 'Verify application.properties Update'
+
   - task: Maven@3
     displayName: 'Build and Run Java Sample'
     inputs:
