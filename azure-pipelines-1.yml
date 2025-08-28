@@ -13,50 +13,52 @@ jobs:
     imageTag: 'latest'
     containerName: 'fluent-restful-server'
     webserverUrl: 'http://localhost:8080'
+    # This variable will hold the AWS Account ID after the first step
+    awsAccountId: '448036597521'
 
   steps:
   # STEP 1: CHECKOUT CODE
   - checkout: self
 
-  # STEP 2: LOGIN TO ECR, PULL IMAGE, AND START SERVER
-  - task: AWSShellScript@1
+  # STEP 2: PULL FROM ECR, GET AWS ACCOUNT ID, AND START SERVER
+  # We are combining the login and run into a single, more robust script
+  - script: |
+      # 1. Log in to ECR and get the AWS Account ID
+      # The 'aws ecr get-login-password' command returns a token. The output of 'aws sts get-caller-identity' gives us the Account ID.
+      aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(awsAccountId).dkr.ecr.us-east-1.amazonaws.com
+      
+      # 2. Manually construct the full image URI
+      IMAGE_URI="$(awsAccountId).dkr.ecr.$(awsRegion).amazonaws.com/$(ecrRepository):$(imageTag)"
+      
+      # 3. Pull the image using the constructed URI
+      echo "Pulling image: $IMAGE_URI"
+      docker pull "$IMAGE_URI"
+
+      # 4. Run the container
+      echo "Starting container with image: $IMAGE_URI"
+      docker run -d --name $(containerName) -p 8080:8080 "$IMAGE_URI"
+      
+      # 5. Health Check
+      echo "Waiting for the server to be ready..."
+      timeout=100
+      while ! curl -s --fail $(webserverUrl)/v2/version; do
+        sleep 5
+        timeout=$(($timeout - 5))
+        if [ $timeout -le 0 ]; then
+          echo "Error: Server did not become ready in time."
+          docker logs $(containerName)
+          exit 1
+        fi
+        echo "Still waiting..."
+      done
+      echo "✅ Server is up and running!"
     displayName: 'Login, Pull from ECR, and Start Server'
-    inputs:
-      awsCredentials: 'AWS ECR'
-      regionName: $(awsRegion)
-      # ---- THIS 'script:' KEY WAS MISSING ----
-      script: |
-        # 1. Get the AWS Account ID. This will now be authenticated.
-        AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-        
-        # 2. Manually construct the full image URI
-        IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$(awsRegion).amazonaws.com/$(ecrRepository):$(imageTag)"
-
-        # 3. Log in to the ECR registry
-        aws ecr get-login-password --region $(awsRegion) | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$(awsRegion).amazonaws.com"
-        
-        # 4. Pull the image
-        echo "Pulling image: $IMAGE_URI"
-        docker pull "$IMAGE_URI"
-
-        # 5. Run the container
-        echo "Starting container with image: $IMAGE_URI"
-        docker run -d --name $(containerName) -p 8080:8080 "$IMAGE_URI"
-        
-        # 6. Health Check
-        echo "Waiting for the server to be ready..."
-        timeout=100
-        while ! curl -s --fail $(webserverUrl)/v2/version; do
-          sleep 5
-          timeout=$(($timeout - 5))
-          if [ $timeout -le 0 ]; then
-            echo "Error: Server did not become ready in time."
-            docker logs $(containerName)
-            exit 1
-          fi
-          echo "Still waiting..."
-        done
-        echo "✅ Server is up and running!"
+    # We still need the service connection to provide the aws command-line tool
+    env:
+      AWS_DEFAULT_REGION: $(awsRegion)
+      # Assuming your service connection is named 'AWS ECR'
+      AWS_ACCESS_KEY_ID: $(AWS ECR.AccessKeyId)
+      AWS_SECRET_ACCESS_KEY: $(AWS ECR.SecretAccessKey)
 
   # STEP 3: BUILD AND TEST .NET
   - script: |
