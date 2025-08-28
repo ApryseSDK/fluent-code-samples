@@ -16,6 +16,13 @@ jobs:
   # STEP 1: CHECKOUT CODE (only needed once)
   - checkout: self
 
+  - task: ECRPullImage@1
+    inputs:
+      awsCredentials: 'AWS ECR'
+      regionName: 'us-east-1'
+      repository: 'fluent-restful-nightly'
+      imageSource: 'imagetag'
+
   # STEP 2: START THE SERVER AND RUN A HEALTH CHECK
   - script: |
       echo "Starting the Fluent RESTful server in the background..."
