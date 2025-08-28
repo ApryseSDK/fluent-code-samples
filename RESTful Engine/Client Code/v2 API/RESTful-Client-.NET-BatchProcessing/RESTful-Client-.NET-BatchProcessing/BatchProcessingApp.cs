@@ -48,7 +48,7 @@ namespace Fluent
             await generator.ProcessOrdersJson(jsonFilePath, templateBytes);
             Console.WriteLine("Finished. Press any key to exit...");
 
-            Console.ReadKey();
+            Console.Read();
         }
     }
 }
