@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  dockerImage: 'public.ecr.aws/apryse/fluent-restful:latest'
+  dockerImage: 'public.ecr.aws/apryse/fluent-restful:LATEST'
   containerName: 'fluent-restful-server'
 
 jobs:
@@ -28,14 +28,15 @@ jobs:
   steps:
   - checkout: self
   - script: |
-      sed -i 's|[YOUR_RESTFUL_SERVER]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
     displayName: 'Update App.config'
 
+  # ---- NEW STEP ADDED HERE ----
   - script: |
       echo "Verifying content of App.config:"
       cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
     displayName: 'Verify App.config Update'
-    
+
   - task: DotNetCoreCLI@2
     displayName: 'Build .NET Sample'
     inputs:
@@ -55,9 +56,10 @@ jobs:
   steps:
   - checkout: self
   - script: |
-      sed -i 's|[YOUR_RESTFUL_SERVER]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
     displayName: 'Update application.properties'
 
+  # ---- NEW STEP ADDED HERE ----
   - script: |
       echo "Verifying content of application.properties:"
       cat "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
@@ -68,6 +70,8 @@ jobs:
     inputs:
       mavenPomFile: 'RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/pom.xml'
       goals: 'package exec:java'
+
+# (The rest of your jobs for JavaScript and Python would follow the same pattern)
 
 # - job: build_and_test_javascript
 #   displayName: 'Build and Test JavaScript Project'
