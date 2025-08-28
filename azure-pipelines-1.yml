@@ -72,6 +72,7 @@ jobs:
     displayName: 'Update & Verify .NET App.config'
     continueOnError: true
 
+  # STEP 3A: BUILD AND RUN .NET CLIENT SAMPLE GENERATE DOCUMENT
   - task: DotNetCoreCLI@2
     displayName: 'Build .NET Client Sample'
     inputs:
@@ -87,6 +88,45 @@ jobs:
     displayName: 'Run .NET Client Sample (GenerateDocument)'
     continueOnError: true
 
+  # STEP 3B: BUILD AND RUN .NET CLIENT SAMPLE RETRIEVE METRICS
+  - script: |
+      echo "Updating StartupObject to RetrieveMetrics"
+      sed -i 's|<StartupObject>.*</StartupObject>|<StartupObject>RESTful_Client_.NET_Sample.RetrieveMetrics</StartupObject>|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample.csproj"
+    displayName: 'Update .NET StartupObject to RetrieveMetrics'
+    continueOnError: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Rebuild .NET Client Sample for RetrieveMetrics'
+    inputs:
+      command: 'build'
+      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+
+  - script: |
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/bin/Debug/net8.0"
+      dotnet RESTful-Client-.NET-Sample.dll
+    displayName: 'Run .NET Client Sample (RetrieveMetrics)'
+    continueOnError: true
+
+  # STEP 3C: BUILD AND RUN .NET CLIENT SAMPLE RETRIEVE TAG TREE
+  - script: |
+      echo "Updating StartupObject to RetrieveTagTree"
+      sed -i 's|<StartupObject>.*</StartupObject>|<StartupObject>RESTful_Client_.NET_Sample.RetrieveTagTree</StartupObject>|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample.csproj"
+    displayName: 'Update .NET StartupObject to RetrieveTagTree'
+    continueOnError: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Rebuild .NET Client Sample for RetrieveTagTree'
+    inputs:
+      command: 'build'
+      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+
+  - script: |
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/bin/Debug/net8.0"
+      dotnet RESTful-Client-.NET-Sample.dll
+    displayName: 'Run .NET Client Sample (RetrieveTagTree)'
+    continueOnError: true
+
+
   # STEP 4: BUILD AND TEST JAVA CLIENT SAMPLES
   - script: |
       # This step only updates the config file
@@ -97,6 +137,7 @@ jobs:
     displayName: 'Update & Verify Java application.properties'
     continueOnError: true
 
+  # STEP 4A: BUILD AND RUN JAVA CLIENT SAMPLE GENERATE DOCUMENT
   - script: |
       # This step runs the build script
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
@@ -106,6 +147,7 @@ jobs:
     displayName: 'Build and Run Java Client Sample (GenerateDocument)'
     continueOnError: true
 
+  # STEP 4B: BUILD AND RUN JAVA CLIENT SAMPLE RETRIEVE METRICS
   - script: |
       # This step runs the build script
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
@@ -115,6 +157,7 @@ jobs:
     displayName: 'Build and Run Java Client Sample (RetrieveMetrics)'
     continueOnError: true
 
+  # STEP 4C: BUILD AND RUN JAVA CLIENT SAMPLE RETRIEVE TAG TREE
   - script: |
       # This step runs the build script
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
@@ -139,6 +182,7 @@ jobs:
     displayName: 'Update & Verify Python config.ini'
     continueOnError: true
 
+  # STEP 5A: BUILD AND RUN PYTHON CLIENT SAMPLE GENERATE DOCUMENT
   - script: |
       # This step installs dependencies and runs the script
       PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
@@ -149,6 +193,7 @@ jobs:
     displayName: 'Run Python Client Sample (GenerateDocument)'
     continueOnError: true
 
+  # STEP 5B: BUILD AND RUN PYTHON CLIENT SAMPLE RETRIEVE METRICS
   - script: |
       # This step installs dependencies and runs the script
       PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
@@ -159,6 +204,7 @@ jobs:
     displayName: 'Run Python Client Sample (RetrieveMetrics)'
     continueOnError: true
 
+  # STEP 5C: BUILD AND RUN PYTHON CLIENT SAMPLE RETRIEVE TAG TREE
   - script: |
       # This step installs dependencies and runs the script
       PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
@@ -169,7 +215,7 @@ jobs:
     displayName: 'Run Python Client Sample (RetrieveTagTree)'
     continueOnError: true
 
-  # # STEP 6: BUILD AND TEST JAVASCRIPT CLIENT SAMPLE
+  # # STEP 6: BUILD AND TEST JAVASCRIPT CLIENT SAMPLE (todo when sample is finished/verified)
   # - script: |
   #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
   #   displayName: 'Update JavaScript config.json'
