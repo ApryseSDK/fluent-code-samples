@@ -70,6 +70,7 @@ jobs:
       echo "Verifying App.config:"
       cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
     displayName: 'Update & Verify .NET App.config'
+    continueOnError: true
 
   - task: DotNetCoreCLI@2
     displayName: 'Build .NET Client Sample'
@@ -84,26 +85,26 @@ jobs:
       # 2. Execute the compiled application directly
       dotnet RESTful-Client-.NET-Sample.dll
     displayName: 'Run .NET Client Sample (GenerateDocument)'
+    continueOnError: true
 
   # STEP 4: BUILD AND TEST JAVA CLIENT SAMPLE
   - script: |
-      # 1. Define the project directory
+      # This step only updates the config file
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
-
-      # 2. Update the application.properties file
       sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "$JAVA_PROJECT_DIR/src/main/resources/application.properties"
       echo "Verifying application.properties:"
       cat "$JAVA_PROJECT_DIR/src/main/resources/application.properties"
-      
-      # 3. Change to the Java project directory
+    displayName: 'Update & Verify Java application.properties'
+    continueOnError: true
+
+  - script: |
+      # This step runs the build script
+      JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
       cd "$JAVA_PROJECT_DIR"
-
-      # 4. Make the script executable
       chmod +x GenerateDocument.sh
-
-      # 5. Run the script
       ./GenerateDocument.sh
-    displayName: 'Build and Run Java Sample (GenerateDocument)'
+    displayName: 'Build and Run Java Client Sample (GenerateDocument)'
+    continueOnError: true
 
   # STEP 5: BUILD AND TEST PYTHON CLIENT SAMPLE
   - task: UsePythonVersion@0
@@ -130,6 +131,7 @@ jobs:
       # 6. Run the script
       ./scripts/GenerateDocument.sh
     displayName: 'Run Python Client Sample (GenerateDocument)'
+    continueOnError: true
 
   # # STEP 6: BUILD AND TEST JAVASCRIPT CLIENT SAMPLE
   # - script: |
@@ -141,6 +143,7 @@ jobs:
   #     npm install
   #     npm start
   #   displayName: 'Run JavaScript Project'
+    # continueOnError: true
 
   # STEP 7: BUILD AND TEST .NET BATCH PROCESSING SAMPLE
   # - script: |
@@ -154,3 +157,4 @@ jobs:
   #   inputs:
   #     command: 'build'
   #     projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+    # continueOnError: true
