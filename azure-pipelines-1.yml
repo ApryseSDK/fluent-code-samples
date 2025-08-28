@@ -182,15 +182,24 @@ jobs:
     # continueOnError: true
 
   # STEP 7: BUILD AND TEST .NET BATCH PROCESSING SAMPLE
-  # - script: |
-  #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
-  #     echo "Verifying App.config:"
-  #     cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
-  #   displayName: 'Update & Verify .NET App.config'
+  - script: |
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-BatchProcessing/RESTful-Client-.NET-BatchProcessing/App.config"
+      echo "Verifying App.config:"
+      cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-BatchProcessing/RESTful-Client-.NET-BatchProcessing/App.config"
+    displayName: 'Update & Verify .NET App.config'
+    continueOnError: true
 
-  # - task: DotNetCoreCLI@2
-  #   displayName: 'Build .NET Client Sample'
-  #   inputs:
-  #     command: 'build'
-  #     projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
-    # continueOnError: true
+  - task: DotNetCoreCLI@2
+    displayName: 'Build .NET Batch Processing Sample'
+    inputs:
+      command: 'build'
+      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-BatchProcessing/**/*.csproj'
+
+  - script: |
+      # 1. Change to the directory where the compiled .exe/.dll is
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-BatchProcessing/RESTful-Client-.NET-BatchProcessing/bin/Debug/net8.0"
+
+      # 2. Execute the compiled application directly
+      dotnet RESTful-Client-.NET-BatchProcessing.dll
+    displayName: 'Run .NET Batch Processing Sample'
+    continueOnError: true
