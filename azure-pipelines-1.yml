@@ -101,7 +101,7 @@ jobs:
       # This step runs the build script
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
       cd "$JAVA_PROJECT_DIR"
-      chmod +x GenerateDocument.sh
+      chmod +x scripts/GenerateDocument.sh
       ./scripts/GenerateDocument.sh
     displayName: 'Build and Run Java Client Sample (GenerateDocument)'
     continueOnError: true
@@ -110,7 +110,7 @@ jobs:
       # This step runs the build script
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
       cd "$JAVA_PROJECT_DIR"
-      chmod +x RetrieveMetrics.sh
+      chmod +x scripts/RetrieveMetrics.sh
       ./scripts/RetrieveMetrics.sh
     displayName: 'Build and Run Java Client Sample (RetrieveMetrics)'
     continueOnError: true
@@ -119,7 +119,7 @@ jobs:
       # This step runs the build script
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
       cd "$JAVA_PROJECT_DIR"
-      chmod +x RetrieveTagTree.sh
+      chmod +x scripts/RetrieveTagTree.sh
       ./scripts/RetrieveTagTree.sh
     displayName: 'Build and Run Java Client Sample (RetrieveTagTree)'
     continueOnError: true
