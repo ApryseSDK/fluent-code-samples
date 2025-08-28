@@ -49,13 +49,19 @@ jobs:
     inputs:
       command: 'build'
       projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
-      workingDirectory: '$(dotnetProjectPath)/bin/Debug/net8.0'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Run .NET Sample'
-    inputs:
-      command: 'run'
-      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+  - script: |
+      # 1. Change to the directory where the compiled .exe/.dll is
+      cd $(dotnetProjectPath)/bin/Debug/net8.0
+
+      # 2. Execute the compiled application directly
+      dotnet RESTful-Client-.NET-Sample.dll
+    displayName: 'Run .NET Sample from output directory'
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Run .NET Sample'
+  #   inputs:
+  #     command: 'run'
+  #     projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
 
   # STEP 4: BUILD AND TEST JAVA
   - script: |
