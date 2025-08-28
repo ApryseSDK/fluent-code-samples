@@ -58,14 +58,13 @@ jobs:
 
   # STEP 2B: Execute the script file with AWS credentials
   - task: AWSShellScript@1
-    displayName: 'Login, Pull from ECR, and Start Server'
+    displayName: 'Login, Pull from ECR, and Start RESTFul Engine Server'
     inputs:
       awsCredentials: 'AWS ECR'
       regionName: $(awsRegion)
-      # Tell the task to execute the file we just created
       filePath: './run_docker_steps.sh'
 
-  # STEP 3: BUILD AND TEST .NET
+  # STEP 3: BUILD AND TEST .NET CLIENT SAMPLE
   - script: |
       sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
       echo "Verifying App.config:"
@@ -73,7 +72,7 @@ jobs:
     displayName: 'Update & Verify .NET App.config'
 
   - task: DotNetCoreCLI@2
-    displayName: 'Build .NET Sample'
+    displayName: 'Build .NET Client Sample'
     inputs:
       command: 'build'
       projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
@@ -84,9 +83,9 @@ jobs:
 
       # 2. Execute the compiled application directly
       dotnet RESTful-Client-.NET-Sample.dll
-    displayName: 'Run .NET Sample from output directory'
+    displayName: 'Run .NET Client Sample (GenerateDocument)'
 
-  # STEP 4: BUILD AND TEST JAVA
+  # STEP 4: BUILD AND TEST JAVA CLIENT SAMPLE
   - script: |
       # 1. Define the project directory
       JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
@@ -104,9 +103,9 @@ jobs:
 
       # 5. Run the script
       ./GenerateDocument.sh
-    displayName: 'Build and Run Java Sample with script'
+    displayName: 'Build and Run Java Sample (GenerateDocument)'
 
-  # STEP 5: BUILD AND TEST PYTHON (Updated to run GenerateDocument.sh)
+  # STEP 5: BUILD AND TEST PYTHON CLIENT SAMPLE
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.x'
@@ -130,9 +129,9 @@ jobs:
 
       # 6. Run the script
       ./scripts/GenerateDocument.sh
-    displayName: 'Run Python Sample with script'
+    displayName: 'Run Python Client Sample (GenerateDocument)'
 
-  # # STEP 6: BUILD AND TEST JAVASCRIPT
+  # # STEP 6: BUILD AND TEST JAVASCRIPT CLIENT SAMPLE
   # - script: |
   #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
   #   displayName: 'Update JavaScript config.json'
@@ -142,3 +141,16 @@ jobs:
   #     npm install
   #     npm start
   #   displayName: 'Run JavaScript Project'
+
+  # STEP 7: BUILD AND TEST .NET BATCH PROCESSING SAMPLE
+  # - script: |
+  #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
+  #     echo "Verifying App.config:"
+  #     cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
+  #   displayName: 'Update & Verify .NET App.config'
+
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Build .NET Client Sample'
+  #   inputs:
+  #     command: 'build'
+  #     projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
