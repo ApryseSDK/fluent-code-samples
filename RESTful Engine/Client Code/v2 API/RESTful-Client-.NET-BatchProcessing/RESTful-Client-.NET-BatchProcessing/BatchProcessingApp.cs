@@ -24,13 +24,19 @@ namespace Fluent
             // If this is left blank, the RESTful engine will still work but it will leave a watermark on the generated documents.
             string licenseKey = ConfigurationManager.AppSettings["license"] ?? "";
 
+            // Get the directory where the .exe is running (e.g., .../bin/Debug/net8.0/)
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Navigate up three levels to find the project's root directory
+            string projectRoot = Path.GetFullPath(Path.Combine(baseDirectory, "..", "..", ".."));
+
             // The location of the template to use
-            string templateUrl = AppDomain.CurrentDomain.BaseDirectory.Replace("\\bin\\Debug\\net8.0\\", "\\Data\\LemonadeStandInvoice.docx");
+            string templateUrl = Path.Combine(projectRoot, "Data", "LemonadeStandInvoice.docx");
 
             // The location of the JSON data file, and where we want to save the 
             // completed documents
-            string jsonFilePath = AppDomain.CurrentDomain.BaseDirectory.Replace("\\bin\\Debug\\net8.0\\", "\\Data\\LemonadeStandOrders.json");
-            string saveLocation = AppDomain.CurrentDomain.BaseDirectory.Replace("\\bin\\Debug\\net8.0\\", "\\GeneratedDocs\\");
+            string jsonFilePath = Path.Combine(projectRoot, "Data", "LemonadeStandOrders.json");
+            string saveLocation = Path.Combine(projectRoot, "GeneratedDocs");
 
             // Create a processor to handle document generation 
             DocumentProcessor generator = new DocumentProcessor(engineUrl, licenseKey, saveLocation);
