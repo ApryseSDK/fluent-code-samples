@@ -31,9 +31,9 @@ jobs:
       imageTag: $(imageTag)
 
   - script: |
-      # The full image name is now available as an output variable from the previous step
-      echo "Starting container with image: $(pullImage.ImageURI)"
-      docker run -d --name $(containerName) -p 8080:8080 $(pullImage.ImageURI)
+      # Use the environment variable $IMAGE_URI which was mapped in the 'env' block below
+      echo "Starting container with image: $IMAGE_URI"
+      docker run -d --name $(containerName) -p 8080:8080 "$IMAGE_URI"
       
       echo "Waiting for the server to be ready..."
       timeout=100
@@ -49,6 +49,9 @@ jobs:
       done
       echo "✅ Server is up and running!"
     displayName: 'Start Server & Wait for Health Check'
+    env:
+      # Map the output of the 'pullImage' step to a new environment variable
+      IMAGE_URI: $(pullImage.ImageURI)
 
   # STEP 3: BUILD AND TEST .NET
   - script: |
