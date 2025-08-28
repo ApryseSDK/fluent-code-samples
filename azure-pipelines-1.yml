@@ -8,26 +8,32 @@ jobs:
 - job: build_and_test_all_samples
   displayName: 'Build and Test All Client Samples'
   variables:
-    dockerImage: 'public.ecr.aws/apryse/fluent-restful:latest'
+    # Set the static part of the image name and the tag here
+    awsRegion: 'us-east-1'
+    ecrRepository: 'fluent-restful-nightly'
+    imageTag: 'latest' # Or specify your nightly tag
     containerName: 'fluent-restful-server'
-    webserverUrl: 'http://localhost:8080' # The server is always on localhost for this job
+    webserverUrl: 'http://localhost:8080'
 
   steps:
-  # STEP 1: CHECKOUT CODE (only needed once)
+  # STEP 1: CHECKOUT CODE
   - checkout: self
 
+  # STEP 2: PULL FROM PRIVATE ECR AND START THE SERVER
   - task: ECRPullImage@1
+    name: pullImage
+    displayName: 'Pull fluent-restful-nightly from AWS ECR'
     inputs:
       awsCredentials: 'AWS ECR'
-      regionName: 'us-east-1'
-      repository: 'fluent-restful-nightly'
+      regionName: $(awsRegion)
+      repository: $(ecrRepository)
       imageSource: 'imagetag'
+      imageTag: $(imageTag)
 
-  # STEP 2: START THE SERVER AND RUN A HEALTH CHECK
   - script: |
-      echo "Starting the Fluent RESTful server in the background..."
-      docker pull $(dockerImage)
-      docker run -d --name $(containerName) -p 8080:8080 $(dockerImage)
+      # The full image name is now available as an output variable from the previous step
+      echo "Starting container with image: $(pullImage.ImageURI)"
+      docker run -d --name $(containerName) -p 8080:8080 $(pullImage.ImageURI)
       
       echo "Waiting for the server to be ready..."
       timeout=100
@@ -36,7 +42,7 @@ jobs:
         timeout=$(($timeout - 5))
         if [ $timeout -le 0 ]; then
           echo "Error: Server did not become ready in time."
-          docker logs $(containerName) # Print logs for debugging
+          docker logs $(containerName)
           exit 1
         fi
         echo "Still waiting..."
