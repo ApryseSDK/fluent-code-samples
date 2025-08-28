@@ -28,6 +28,19 @@
     </dependencies>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.1</version> <!-- Or the version you are using -->
+                <configuration>
+                    <mainClass>com.apryse.fluent.GenerateDocument</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- <build>
         <finalName>JavaRESTfulClientSample</finalName>
         <plugins>
             <plugin>
@@ -61,6 +74,6 @@
                 </executions>
             </plugin>
         </plugins>
-    </build>
+    </build> -->
 
 </project>
