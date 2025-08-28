@@ -52,7 +52,7 @@ jobs:
 
   - script: |
       # 1. Change to the directory where the compiled .exe/.dll is
-      cd RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/bin/Debug/net8.0
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/bin/Debug/net8.0"
 
       # 2. Execute the compiled application directly
       dotnet RESTful-Client-.NET-Sample.dll
