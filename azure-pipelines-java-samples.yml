@@ -1,5 +1,13 @@
 trigger: none
 
+schedules:
+- cron: "0 11 * * 1"
+  displayName: Weekly Monday 5:00 AM (MT) Run
+  branches:
+    include:
+    - main
+  always: true
+  
 pool:
   vmImage: 'windows-2022'
 
