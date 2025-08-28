@@ -13,4 +13,10 @@
     <PackageReference Include="WindwardRestApi" Version="*" />
   </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="files\**">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>
