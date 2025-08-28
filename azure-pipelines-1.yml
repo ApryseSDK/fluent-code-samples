@@ -85,11 +85,6 @@ jobs:
       # 2. Execute the compiled application directly
       dotnet RESTful-Client-.NET-Sample.dll
     displayName: 'Run .NET Sample from output directory'
-  # - task: DotNetCoreCLI@2
-  #   displayName: 'Run .NET Sample'
-  #   inputs:
-  #     command: 'run'
-  #     projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
 
   # STEP 4: BUILD AND TEST JAVA
   - script: |
@@ -98,11 +93,19 @@ jobs:
       cat "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
     displayName: 'Update & Verify Java application.properties'
 
-  - task: Maven@3
+  - script: |
+      # First, change the directory to the root of the Java project
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
+
+      # Now, run the Maven command from the correct working directory
+      # We also update the config file here to keep the logic together
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "src/main/resources/application.properties"
+      echo "Verifying application.properties:"
+      cat "src/main/resources/application.properties"
+
+      # Execute the build and run goals
+      mvn package exec:java
     displayName: 'Build and Run Java Sample'
-    inputs:
-      mavenPomFile: 'RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/pom.xml'
-      goals: 'package exec:java'
 
   # # STEP 5: BUILD AND TEST JAVASCRIPT
   # - script: |
