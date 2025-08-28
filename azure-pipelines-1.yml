@@ -1,0 +1,94 @@
+trigger:
+- none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dockerImage: 'public.ecr.aws/apryse/fluent-restful:LATEST'
+  containerName: 'fluent-restful-server'
+
+jobs:
+- job: start_fluent_restful_server
+  displayName: 'Start Fluent RESTful Server'
+  steps:
+  - script: |
+      docker pull $(dockerImage)
+      docker run -d --name $(containerName) -p 8080:8080 $(dockerImage)
+      # Get the IP address of the container
+      WEBSERVER_URL="http://$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(containerName)):8080"
+      echo "##vso[task.setvariable variable=webserverUrl;isOutput=true]$WEBSERVER_URL"
+    name: docker_step
+
+- job: build_and_test_dotnet_sample
+  displayName: 'Build and Test .NET Sample'
+  dependsOn: start_fluent_restful_server
+  variables:
+    webserverUrl: $[ dependencies.start_fluent_restful_server.outputs['docker_step.webserverUrl'] ]
+  steps:
+  - checkout: self
+  - script: |
+      sed -i 's|[YOUR_RESTFUL_SERVER]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
+    displayName: 'Update App.config'
+  - task: DotNetCoreCLI@2
+    displayName: 'Build .NET Sample'
+    inputs:
+      command: 'build'
+      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+  - task: DotNetCoreCLI@2
+    displayName: 'Run .NET Sample'
+    inputs:
+      command: 'run'
+      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+
+- job: build_and_test_java_sample
+  displayName: 'Build and Test Java Sample'
+  dependsOn: start_fluent_restful_server
+  variables:
+    webserverUrl: $[ dependencies.start_fluent_restful_server.outputs['docker_step.webserverUrl'] ]
+  steps:
+  - checkout: self
+  - script: |
+      sed -i 's|[YOUR_RESTFUL_SERVER]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
+    displayName: 'Update application.properties'
+  - task: Maven@3
+    displayName: 'Build and Run Java Sample'
+    inputs:
+      mavenPomFile: 'RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/pom.xml'
+      goals: 'package exec:java'
+
+# - job: build_and_test_javascript
+#   displayName: 'Build and Test JavaScript Project'
+#   dependsOn: start_fluent_restful_server
+#   variables:
+#     webserverUrl: $[ dependencies.start_fluent_restful_server.outputs['docker_step.webserverUrl'] ]
+#   steps:
+#   - checkout: self
+#   - script: |
+#       sed -i 's|[YOUR_RESTFUL_SERVER]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
+#     displayName: 'Update config.json'
+#   - script: |
+#       cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
+#       npm install
+#       npm start
+#     displayName: 'Run JavaScript Project'
+
+# - job: build_and_test_python
+#   displayName: 'Build and Test Python Project'
+#   dependsOn: start_fluent_restful_server
+#   variables:
+#     webserverUrl: $[ dependencies.start_fluent_restful_server.outputs['docker_step.webserverUrl'] ]
+#   steps:
+#   - checkout: self
+#   - task: UsePythonVersion@0
+#     inputs:
+#       versionSpec: '3.x'
+#     displayName: 'Use Python 3.x'
+#   - script: |
+#       sed -i 's|[YOUR_RESTFUL_SERVER]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample/config.ini"
+#     displayName: 'Update config.ini'
+#   - script: |
+#       cd "RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
+#       pip install -r requirements.txt
+#       python main.py
+#     displayName: 'Run Python Project'
