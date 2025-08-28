@@ -47,8 +47,6 @@ namespace Fluent
             // Process all of the orders, generating a document from our template for each order
             await generator.ProcessOrdersJson(jsonFilePath, templateBytes);
             Console.WriteLine("Finished. Press any key to exit...");
-
-            Console.Read();
         }
     }
 }
