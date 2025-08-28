@@ -42,8 +42,8 @@ public class GenerateDocument {
         System.out.println("Fluent RESTful Engine Version: " + versionInfo.getEngineVersion());
 
         // Get our template and data source as byte arrays to pass to the RESTful Engine Client
-        byte[] templateBytes = Files.readAllBytes(new File("files\\InvestmentFactSheet.docx").toPath());
-        byte[] dataSourceBytes = Files.readAllBytes(new File("files\\InvestmentFactSheet.xml").toPath());
+        byte[] templateBytes = Files.readAllBytes(new File("files/InvestmentFactSheet.docx").toPath());
+        byte[] dataSourceBytes = Files.readAllBytes(new File("files/InvestmentFactSheet.xml").toPath());
 
         // Create our template object that will output to PDF format
         Template template = new Template(Template.OutputFormatEnum.PDF, templateBytes, Template.FormatEnum.DOCX);
