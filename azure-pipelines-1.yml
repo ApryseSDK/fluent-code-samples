@@ -20,6 +20,21 @@ jobs:
       echo "##vso[task.setvariable variable=webserverUrl;isOutput=true]http://localhost:8080"
     name: docker_step
 
+  - script: |
+      echo "Waiting for the Fluent RESTful server to be ready..."
+      timeout=100
+      while ! curl -s --fail http://localhost:8080/v2/version; do
+        sleep 5
+        timeout=$(($timeout - 5))
+        if [ $timeout -le 0 ]; then
+          echo "Error: Server did not become ready in time."
+          exit 1
+        fi
+        echo "Still waiting..."
+      done
+      echo "✅ Server is up and running!"
+    displayName: 'Wait for Server Health Check'
+
 - job: build_and_test_dotnet_sample
   displayName: 'Build and Test .NET Sample'
   dependsOn: start_fluent_restful_server
@@ -31,7 +46,6 @@ jobs:
       sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
     displayName: 'Update App.config'
 
-  # ---- NEW STEP ADDED HERE ----
   - script: |
       echo "Verifying content of App.config:"
       cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
@@ -59,7 +73,6 @@ jobs:
       sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
     displayName: 'Update application.properties'
 
-  # ---- NEW STEP ADDED HERE ----
   - script: |
       echo "Verifying content of application.properties:"
       cat "RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/src/main/resources/application.properties"
@@ -70,8 +83,6 @@ jobs:
     inputs:
       mavenPomFile: 'RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample/pom.xml'
       goals: 'package exec:java'
-
-# (The rest of your jobs for JavaScript and Python would follow the same pattern)
 
 # - job: build_and_test_javascript
 #   displayName: 'Build and Test JavaScript Project'
