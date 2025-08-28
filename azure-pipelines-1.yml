@@ -13,28 +13,33 @@ jobs:
     imageTag: 'latest'
     containerName: 'fluent-restful-server'
     webserverUrl: 'http://localhost:8080'
+    # This variable will hold the AWS Account ID after the first step
+    awsAccountId: ''
 
   steps:
   # STEP 1: CHECKOUT CODE
   - checkout: self
 
-  # STEP 2: PULL FROM PRIVATE ECR AND START THE SERVER
-  - task: ECRPullImage@1
-    name: pullImage
-    displayName: 'Pull fluent-restful-nightly from AWS ECR'
-    inputs:
-      awsCredentials: 'AWS ECR'
-      regionName: $(awsRegion)
-      repository: $(ecrRepository)
-      imageSource: 'imagetag'
-      imageTag: $(imageTag)
-
-  # ---- THIS SCRIPT IS NOW CORRECT ----
+  # STEP 2: PULL FROM ECR, GET AWS ACCOUNT ID, AND START SERVER
+  # We are combining the login and run into a single, more robust script
   - script: |
-      # Use the environment variable, which is the correct syntax here
+      # 1. Log in to ECR and get the AWS Account ID
+      # The 'aws ecr get-login-password' command returns a token. The output of 'aws sts get-caller-identity' gives us the Account ID.
+      AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      aws ecr get-login-password --region $(awsRegion) | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$(awsRegion).amazonaws.com
+      
+      # 2. Manually construct the full image URI
+      IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$(awsRegion).amazonaws.com/$(ecrRepository):$(imageTag)"
+      
+      # 3. Pull the image using the constructed URI
+      echo "Pulling image: $IMAGE_URI"
+      docker pull "$IMAGE_URI"
+
+      # 4. Run the container
       echo "Starting container with image: $IMAGE_URI"
       docker run -d --name $(containerName) -p 8080:8080 "$IMAGE_URI"
       
+      # 5. Health Check
       echo "Waiting for the server to be ready..."
       timeout=100
       while ! curl -s --fail $(webserverUrl)/v2/version; do
@@ -48,10 +53,13 @@ jobs:
         echo "Still waiting..."
       done
       echo "✅ Server is up and running!"
-    displayName: 'Start Server & Wait for Health Check'
+    displayName: 'Login, Pull from ECR, and Start Server'
+    # We still need the service connection to provide the aws command-line tool
     env:
-      # This correctly maps the task output to an environment variable
-      IMAGE_URI: $(pullImage.ImageURI)
+      AWS_DEFAULT_REGION: $(awsRegion)
+      # Assuming your service connection is named 'AWS ECR'
+      AWS_ACCESS_KEY_ID: $(AWS ECR.AccessKeyId)
+      AWS_SECRET_ACCESS_KEY: $(AWS ECR.SecretAccessKey)
 
   # STEP 3: BUILD AND TEST .NET
   - script: |
