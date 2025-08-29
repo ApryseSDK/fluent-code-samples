@@ -12,5 +12,5 @@
   <ItemGroup>
     <PackageReference Include="WindwardRestApi" Version="*" />
   </ItemGroup>
-
+  
 </Project>

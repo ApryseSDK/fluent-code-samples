@@ -27,9 +27,9 @@ Use the following steps to build and run the sample through Intellij
 6. Click the "Run" button next to the class name in the file
 
 ## Command Line Usage
-The commands for command line usage for each sample can be found in their respective .bat file in the root of the project.
+The commands for command line usage for each sample can be found in their respective .bat/.sh file in the *scripts* folder in the root of the project.
 
-The .bat files can be ran as well.
+The .bat/.sh files can be ran as well.
 
 ## Additional Information
 You can find additional information about the v2 Java RESTful Clients [here](https://fluent.apryse.com/documentation/engine-guide/Fluent%20RESTful%20Engines/RESTfulJavaClient).

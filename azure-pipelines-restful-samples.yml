@@ -1,0 +1,259 @@
+trigger:
+- none
+
+schedules:
+- cron: "0 11 * * 1"
+  displayName: Weekly Monday 5:00 AM (MT) Run
+  branches:
+    include:
+    - main
+  always: true
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: build_and_test_all_samples
+  displayName: 'Build and Test All Client Samples'
+  variables:
+    awsRegion: 'us-east-1'
+    ecrRepository: 'fluent-restful-nightly'
+    imageTag: 'latest'
+    containerName: 'fluent-restful-server'
+    webserverUrl: 'http://localhost:8080'
+
+  steps:
+  # STEP 1: CHECKOUT CODE
+  - checkout: self
+
+  # STEP 2A: Write the script logic to a file
+  - bash: |
+      # This command block writes everything between <<'EOF' and EOF into a new file.
+      cat > ./run_docker_steps.sh <<'EOF'
+      #!/bin/bash
+      # Exit immediately if a command fails
+      set -e
+
+      echo "Getting AWS Account ID..."
+      AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      
+      IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/fluent-restful-nightly:latest"
+
+      echo "Logging in to ECR..."
+      aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com"
+      
+      echo "Pulling image: $IMAGE_URI"
+      docker pull "$IMAGE_URI"
+
+      echo "Starting container with image: $IMAGE_URI"
+      docker run -d --name fluent-restful-server -p 8080:8080 "$IMAGE_URI"
+      
+      echo "Waiting for the server to be ready..."
+      timeout=100
+      while ! curl -s --fail http://localhost:8080/v2/version; do
+        sleep 5
+        timeout=$(($timeout - 5))
+        if [ $timeout -le 0 ]; then
+          echo "Error: Server did not become ready in time."
+          docker logs fluent-restful-server
+          exit 1
+        fi
+        echo "Still waiting..."
+      done
+      echo "✅ Server is up and running!"
+      EOF
+    displayName: 'Create Docker Steps Script'
+
+  # STEP 2B: Execute the script file with AWS credentials
+  - task: AWSShellScript@1
+    displayName: 'Login, Pull from ECR, and Start RESTFul Engine Server'
+    inputs:
+      awsCredentials: 'AWS ECR'
+      regionName: $(awsRegion)
+      filePath: './run_docker_steps.sh'
+
+  # STEP 3: BUILD AND TEST .NET CLIENT SAMPLES
+  - script: |
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
+      echo "Verifying App.config:"
+      cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/App.config"
+    displayName: 'Update & Verify .NET App.config'
+    continueOnError: true
+
+  # STEP 3A: BUILD AND RUN .NET CLIENT SAMPLE GENERATE DOCUMENT
+  - task: DotNetCoreCLI@2
+    displayName: 'Build .NET Client Sample'
+    inputs:
+      command: 'build'
+      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+
+  - script: |
+      # 1. Change to the directory where the compiled .exe/.dll is
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/bin/Debug/net8.0"
+
+      # 2. Execute the compiled application directly
+      dotnet RESTful-Client-.NET-Sample.dll
+    displayName: 'Run .NET Client Sample (GenerateDocument)'
+    continueOnError: true
+
+  # STEP 3B: BUILD AND RUN .NET CLIENT SAMPLE RETRIEVE METRICS
+  - script: |
+      echo "Updating StartupObject to RetrieveMetrics"
+      sed -i 's|<StartupObject>.*</StartupObject>|<StartupObject>RESTful_Client_.NET_Sample.RetrieveMetrics</StartupObject>|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample.csproj"
+    displayName: 'Update .NET StartupObject to RetrieveMetrics'
+    continueOnError: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Rebuild .NET Client Sample for RetrieveMetrics'
+    inputs:
+      command: 'build'
+      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+
+  - script: |
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/bin/Debug/net8.0"
+      dotnet RESTful-Client-.NET-Sample.dll
+    displayName: 'Run .NET Client Sample (RetrieveMetrics)'
+    continueOnError: true
+
+  # STEP 3C: BUILD AND RUN .NET CLIENT SAMPLE RETRIEVE TAG TREE
+  - script: |
+      echo "Updating StartupObject to RetrieveTagTree"
+      sed -i 's|<StartupObject>.*</StartupObject>|<StartupObject>RESTful_Client_.NET_Sample.RetrieveTagTree</StartupObject>|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample.csproj"
+    displayName: 'Update .NET StartupObject to RetrieveTagTree'
+    continueOnError: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Rebuild .NET Client Sample for RetrieveTagTree'
+    inputs:
+      command: 'build'
+      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/**/*.csproj'
+
+  - script: |
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-Sample/RESTful-Client-.NET-Sample/bin/Debug/net8.0"
+      dotnet RESTful-Client-.NET-Sample.dll
+    displayName: 'Run .NET Client Sample (RetrieveTagTree)'
+    continueOnError: true
+
+
+  # STEP 4: BUILD AND TEST JAVA CLIENT SAMPLES
+  - script: |
+      # This step only updates the config file
+      JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "$JAVA_PROJECT_DIR/src/main/resources/application.properties"
+      echo "Verifying application.properties:"
+      cat "$JAVA_PROJECT_DIR/src/main/resources/application.properties"
+    displayName: 'Update & Verify Java application.properties'
+    continueOnError: true
+
+  # STEP 4A: BUILD AND RUN JAVA CLIENT SAMPLE GENERATE DOCUMENT
+  - script: |
+      # This step runs the build script
+      JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
+      cd "$JAVA_PROJECT_DIR"
+      chmod +x scripts/GenerateDocument.sh
+      ./scripts/GenerateDocument.sh
+    displayName: 'Build and Run Java Client Sample (GenerateDocument)'
+    continueOnError: true
+
+  # STEP 4B: BUILD AND RUN JAVA CLIENT SAMPLE RETRIEVE METRICS
+  - script: |
+      # This step runs the build script
+      JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
+      cd "$JAVA_PROJECT_DIR"
+      chmod +x scripts/RetrieveMetrics.sh
+      ./scripts/RetrieveMetrics.sh
+    displayName: 'Build and Run Java Client Sample (RetrieveMetrics)'
+    continueOnError: true
+
+  # STEP 4C: BUILD AND RUN JAVA CLIENT SAMPLE RETRIEVE TAG TREE
+  - script: |
+      # This step runs the build script
+      JAVA_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Java-Sample"
+      cd "$JAVA_PROJECT_DIR"
+      chmod +x scripts/RetrieveTagTree.sh
+      ./scripts/RetrieveTagTree.sh
+    displayName: 'Build and Run Java Client Sample (RetrieveTagTree)'
+    continueOnError: true
+
+  # STEP 5: BUILD AND TEST PYTHON CLIENT SAMPLES
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+    displayName: 'Use Python 3.x'
+
+  - script: |
+      # This step only updates the config file
+      PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "$PYTHON_PROJECT_DIR/config.ini"
+      echo "Verifying config.ini:"
+      cat "$PYTHON_PROJECT_DIR/config.ini"
+    displayName: 'Update & Verify Python config.ini'
+    continueOnError: true
+
+  # STEP 5A: BUILD AND RUN PYTHON CLIENT SAMPLE GENERATE DOCUMENT
+  - script: |
+      # This step installs dependencies and runs the script
+      PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
+      cd "$PYTHON_PROJECT_DIR"
+      pip install -r requirements.txt
+      chmod +x scripts/GenerateDocument.sh
+      ./scripts/GenerateDocument.sh
+    displayName: 'Run Python Client Sample (GenerateDocument)'
+    continueOnError: true
+
+  # STEP 5B: BUILD AND RUN PYTHON CLIENT SAMPLE RETRIEVE METRICS
+  - script: |
+      # This step installs dependencies and runs the script
+      PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
+      cd "$PYTHON_PROJECT_DIR"
+      pip install -r requirements.txt
+      chmod +x scripts/RetrieveMetrics.sh
+      ./scripts/RetrieveMetrics.sh
+    displayName: 'Run Python Client Sample (RetrieveMetrics)'
+    continueOnError: true
+
+  # STEP 5C: BUILD AND RUN PYTHON CLIENT SAMPLE RETRIEVE TAG TREE
+  - script: |
+      # This step installs dependencies and runs the script
+      PYTHON_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-Python-Sample"
+      cd "$PYTHON_PROJECT_DIR"
+      pip install -r requirements.txt
+      chmod +x scripts/RetrieveTagTree.sh
+      ./scripts/RetrieveTagTree.sh
+    displayName: 'Run Python Client Sample (RetrieveTagTree)'
+    continueOnError: true
+
+  # # STEP 6: BUILD AND TEST JAVASCRIPT CLIENT SAMPLE (todo when sample is finished/verified)
+  # - script: |
+  #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
+  #   displayName: 'Update JavaScript config.json'
+
+  # - script: |
+  #     cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
+  #     npm install
+  #     npm start
+  #   displayName: 'Run JavaScript Project'
+    # continueOnError: true
+
+  # STEP 7: BUILD AND TEST .NET BATCH PROCESSING SAMPLE
+  - script: |
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-BatchProcessing/RESTful-Client-.NET-BatchProcessing/App.config"
+      echo "Verifying App.config:"
+      cat "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-BatchProcessing/RESTful-Client-.NET-BatchProcessing/App.config"
+    displayName: 'Update & Verify .NET App.config'
+    continueOnError: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build .NET Batch Processing Sample'
+    inputs:
+      command: 'build'
+      projects: 'RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-BatchProcessing/**/*.csproj'
+
+  - script: |
+      # 1. Change to the directory where the compiled .exe/.dll is
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-.NET-BatchProcessing/RESTful-Client-.NET-BatchProcessing/bin/Debug/net8.0"
+
+      # 2. Execute the compiled application directly
+      dotnet RESTful-Client-.NET-BatchProcessing.dll
+    displayName: 'Run .NET Batch Processing Sample'
+    continueOnError: true

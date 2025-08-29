@@ -14,7 +14,7 @@ public class SaveDocuments
 	public async Task SaveInvoiceDocument(Document doc, string name)
     {
         Directory.CreateDirectory(saveDirectory);
-		string filepath = Path.GetFullPath(saveDirectory + name + ".pdf");
-        await File.WriteAllBytesAsync(filepath, doc.Data);
+		string filePath = Path.Combine(saveDirectory, name + ".pdf");
+        await File.WriteAllBytesAsync(filePath, doc.Data);
 	}
 }
