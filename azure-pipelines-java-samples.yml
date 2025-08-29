@@ -1,0 +1,153 @@
+trigger: none
+
+schedules:
+- cron: "0 11 * * 1"
+  displayName: Weekly Monday 5:00 AM (MT) Run
+  branches:
+    include:
+    - main
+  always: true
+  
+pool:
+  vmImage: 'windows-2022'
+
+steps:
+- task: JavaToolInstaller@0
+  displayName: 'Install Java JDK'
+  inputs:
+    versionSpec: '8'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+
+- task: PowerShell@2
+  displayName: 'Build and Run All Java Maven Projects'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Set the script to continue even if a command writes an error
+      $ErrorActionPreference = "Continue"
+
+      # Define the specific directory to search for projects
+      $searchRoot = "Embedded Java Engine Samples"
+      $searchPath = Join-Path -Path "$(System.DefaultWorkingDirectory)" -ChildPath $searchRoot
+
+      # Define the list of project folder names to exclude
+      # IMPORTANT: Update this list with the names of any Java project folders you want to skip.
+      $excludedFolders = @("GenerateAnyDocumentCommandLine", "CustomFunctions", "CustomCallbacks", "BasicDb2", "BasicOData", "BasicSalesforce")
+
+      # Check if the specified directory exists
+      if (-not (Test-Path -Path $searchPath -PathType Container)) {
+          Write-Error "The specified search directory does not exist: $searchPath"
+          exit 1
+      }
+
+      Write-Host "Searching for Maven projects (pom.xml) in: $searchPath"
+
+      # Find all pom.xml files recursively from the specified directory
+      $pomFiles = Get-ChildItem -Path $searchPath -Recurse -Filter pom.xml
+
+      if (-not $pomFiles) {
+          Write-Host "No pom.xml files found in the specified directory. Pipeline will succeed."
+          exit 0
+      }
+
+      # Initialize lists to track success and failure
+      $successProjects = @()
+      $failedProjects = @()
+
+      # Filter out excluded projects
+      $mavenProjects = @()
+      foreach ($file in $pomFiles) {
+          $projectDir = $file.Directory
+          $shouldExclude = $false
+          
+          # Check if any part of the project's full path matches an excluded folder name
+          $pathSegments = $projectDir.FullName.Split([System.IO.Path]::DirectorySeparatorChar)
+          foreach ($excludedFolder in $excludedFolders) {
+              if ($pathSegments -contains $excludedFolder) {
+                  $shouldExclude = $true
+                  break
+              }
+          }
+
+          if ($shouldExclude) {
+              Write-Host "  [-] Skipping excluded project in folder: $($projectDir.FullName)"
+          } else {
+              Write-Host "  [+] Identified Maven project in folder: $($projectDir.Name)"
+              $mavenProjects += $file
+          }
+      }
+
+      if (-not $mavenProjects) {
+          Write-Host "No Maven projects were found (after exclusions). Pipeline will succeed."
+          exit 0
+      }
+
+      Write-Host "-----------------------------------------------------------------"
+      Write-Host "Starting build and run for $($mavenProjects.Count) identified project(s)."
+      Write-Host "-----------------------------------------------------------------"
+
+      # Process each identified Maven project
+      foreach ($project in $mavenProjects) {
+          $projectDir = $project.DirectoryName
+          $projectName = $project.Directory.Name
+          $hasFailed = $false
+
+          Write-Host "##[group]Processing Project: $projectName"
+
+          # Step 1: Build the project using Maven (compiles and downloads dependencies)
+          Write-Host "Building project with 'mvn clean install' in: $projectDir"
+          Push-Location -Path $projectDir
+          mvn clean install
+          if ($LASTEXITCODE -ne 0) {
+              $errorMessage = "Maven build FAILED for project: $projectName"
+              Write-Error $errorMessage
+              Write-Host "##vso[task.logissue type=error;]$errorMessage"
+              $hasFailed = $true
+          } else {
+              Write-Host "Maven build SUCCEEDED."
+
+              # Step 2: Run the project using the exec-maven-plugin
+              Write-Host "Executing project with 'mvn exec:java'"
+              mvn exec:java
+              if ($LASTEXITCODE -ne 0) {
+                  $errorMessage = "Execution FAILED for project: $projectName. 'mvn exec:java' returned a non-zero exit code: $LASTEXITCODE"
+                  Write-Error $errorMessage
+                  Write-Host "##vso[task.logissue type=error;]$errorMessage"
+                  $hasFailed = $true
+              } else {
+                  Write-Host "Execution SUCCEEDED (Exit Code: 0)."
+              }
+          }
+          
+          # Return to the original directory
+          Pop-Location
+
+          # Add the project to the appropriate success or failure list
+          if ($hasFailed) {
+              $failedProjects += $projectName
+          } else {
+              $successProjects += $projectName
+          }
+
+          Write-Host "##[endgroup]"
+      }
+
+      # --- Final Summary ---
+      Write-Host "-----------------------------------------------------------------"
+      Write-Host "Final Summary"
+      Write-Host "-----------------------------------------------------------------"
+      Write-Host "✅ Successful projects: $($successProjects.Count)"
+      $successProjects | ForEach-Object { Write-Host "  - $_" }
+
+      Write-Host "❌ Failed projects: $($failedProjects.Count)"
+      $failedProjects | ForEach-Object { Write-Host "  - $_" }
+      Write-Host "-----------------------------------------------------------------"
+
+      # Fail the pipeline if any project failed
+      if ($failedProjects.Count -gt 0) {
+          Write-Error "$($failedProjects.Count) project(s) failed. See logs for details."
+          exit 1
+      }
+
+      Write-Host "✅ All Java projects were built and ran successfully!"
