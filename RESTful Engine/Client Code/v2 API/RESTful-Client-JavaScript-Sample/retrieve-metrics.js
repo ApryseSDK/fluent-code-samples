@@ -83,7 +83,7 @@ async function main()
     console.log("Template metrics saved to /files/metrics.json");
 
     // Delete the metrics from the engine
-    await client.deeleteMetrics(templateMetrics.Guid);
+    await client.deleteMetrics(templateMetrics.Guid);
 }
 
 // Execute the main() method
