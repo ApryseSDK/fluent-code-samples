@@ -1,5 +1,5 @@
 {
-    "restful-engine-url": "http://localhost:6565",
+    "restful-engine-url": "[YOUR_RESTFUL_ENGINE_URL]",
     "fluent-license": "",
     "webviewer-license": ""
 }
