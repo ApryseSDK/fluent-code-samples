@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Fluent RESTful Client With WebViewer Sample</title>
+        <link rel="stylesheet" href="styles.css">
+
+        <!-- Load WebViewer -->
+        <script src="/lib/webviewer/webviewer.min.js"></script>
+    </head>
+    <body>
+        <div id="initial-view">
+            <div class="container">
+                <h1>Fluent RESTful Client With WebViewer Sample</h1>
+                <p>Click the button below to generate a new document with the Fluent RESTful Client and view it here with Apryse WebViewer.</p>
+                <button id="generate-button" disabled>Initializing...</button>
+                <div id="message-area"></div>
+            </div>
+        </div>
+        
+        <div id="viewer"></div>
+
+        <!-- WebViewer Initialization and Usage Script -->
+        <script>
+            const initialView = document.getElementById('initial-view');
+            const viewerDiv = document.getElementById('viewer');
+            const generateButton = document.getElementById('generate-button');
+            const messageArea = document.getElementById('message-area');
+            
+            // This will hold the promise that resolves with the viewer instance
+            let viewerPromise = null; 
+
+            // Helper function to set message and style
+            function showMessage(text, type) {
+                messageArea.textContent = text;
+                messageArea.className = type;
+            }
+
+            // We will initialize WebViewer after the entire page, including scripts, has loaded.
+            window.addEventListener('load', () => {
+                // Start initializing the viewer in the background and store the promise
+                viewerPromise = fetch('/config')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(config => {
+                        const webviewerLicenseKey = config.webviewerLicense;
+                        if (!webviewerLicenseKey) {
+                            console.warn("WebViewer license key is missing or a placeholder. The viewer will have a watermark.");
+                        }
+
+                        // Initialize WebViewer
+                        return WebViewer({
+                            path: '/lib/webviewer',
+                            licenseKey: webviewerLicenseKey,
+                            initialDoc: 'files/InvestmentFactSheet.docx',   // Show the template initially
+                        }, viewerDiv);
+                    })
+                    .then(instance => {
+                        console.log('WebViewer instance is ready.');
+
+                        generateButton.disabled = false;
+                        generateButton.textContent = 'Generate Document';
+
+                        // Show the left panel in the viewer by default
+                        instance.UI.openElements(['leftPanel', 'thumbnailsPanel']);
+                        return instance;
+                    })
+                    .catch(error => {
+                        console.error("Failed to initialize viewer:", error);
+                        showMessage("Error: Could not initialize the document viewer. Please check the console.", 'error');
+                        
+                        generateButton.textContent = 'Viewer Failed to Load';
+                        throw error;
+                    });
+            });
+
+            // Add an event listener to the button for the 'click' event
+            generateButton.addEventListener('click', async () => {
+                // Disable the button to prevent multiple clicks
+                generateButton.disabled = true;
+                showMessage('Generating document...', 'info');
+
+                try {
+                    // First, await the viewer promise AND capture the returned instance.
+                    const instance = await viewerPromise;
+
+                    // Now that the viewer is guaranteed to be ready, proceed with generation
+                    const response = await fetch('/generate-document', { method: 'POST' });
+                    if (response.ok) {
+                        showMessage('Document generated! Loading document...', 'success');
+
+                        // Load the new document into the captured viewer instance
+                        const data = await response.arrayBuffer();
+                        const arr = new Uint8Array(data);
+                        const blob = new Blob([arr], { type: 'application/pdf' });
+                        instance.UI.loadDocument(blob, { filename: 'output.pdf' });
+
+                        instance.Core.documentViewer.addEventListener('documentLoaded', () => {
+                            showMessage('Document generated successfully!', 'success');
+                            generateButton.disabled = false;
+                        });
+
+                    } else {
+                        showMessage(`Error: ${result.message}`, 'error');
+                        generateButton.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('An error occurred during generation or loading:', error);
+                    showMessage('An unexpected error occurred. Check the console.', 'error');
+                    generateButton.disabled = false;
+                }
+            });
+        </script>
+    </body>
+</html>
