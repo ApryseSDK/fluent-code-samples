@@ -5,7 +5,10 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "tsc"
+    "build": "tsc",
+    "copy-webviewer-public": "cpx \"node_modules/@pdftron/webviewer/public/**/*\" \"public/lib/webviewer\"",
+    "copy-webviewer-js": "cpx \"node_modules/@pdftron/webviewer/webviewer.min.js\" \"public/lib/webviewer\"",
+    "postbuild": "npm run copy-webviewer-public && npm run copy-webviewer-js"
   },
   "dependencies": {
     "@pdftron/webviewer": "^11.7.1",
@@ -15,6 +18,7 @@
   "devDependencies": {
     "@types/express": "^4.17.17",
     "@types/node": "^20.19.13",
+    "cpx": "^1.5.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
