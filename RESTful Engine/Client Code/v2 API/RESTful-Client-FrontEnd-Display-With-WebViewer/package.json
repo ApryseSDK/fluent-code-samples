@@ -1,0 +1,22 @@
+{
+  "name": "restful-client-frontend-display-with-webviewer",
+  "version": "1.0.0",
+  "description": "A simple Node.js app that uses Fluent's RESTful Client to generate documents and display output with Apryse WebViewer.",
+  "main": "dist/server.js",
+  "scripts": {
+    "start": "node dist/server.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@pdftron/webviewer": "^11.7.1",
+    "express": "^4.18.2",
+    "windwardrestapi": "*"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.19.13",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
