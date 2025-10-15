@@ -23,10 +23,10 @@ namespace RunReportSQL {
             // Create report process
             Report myReport = new ReportPdf(template, output);
 
-            string strConn = "Data Source=mssql.windward.net;Initial Catalog=Northwind;User ID=demo;Password=demo";
+            string strConn = "Data Source=mssql.windward.net;Initial Catalog=Northwind;User ID=demo;Password=demo;TrustServerCertificate=True";
 
             // SQL data source
-            using (AdoDataSourceImpl adoDatasource = new AdoDataSourceImpl("System.Data.SqlClient", strConn)) {
+            using (AdoDataSourceImpl adoDatasource = new AdoDataSourceImpl("Microsoft.Data.SqlClient", strConn)) {
                 //run the report process
                 myReport.ProcessSetup();
                 //the second parameter is the name of the data source
