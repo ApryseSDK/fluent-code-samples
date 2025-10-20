@@ -11,10 +11,10 @@ import {
     JsonDataSource, 
     SqlDataSource, 
     Template, 
-    OutputFormatEnum, 
-    Parameter,
-    ParameterValue
+    OutputFormatEnum
 } from 'windwardrestapi';
+
+const DEFAULT_RESTFUL_CONFIG_VALUE = "[YOUR_RESTFUL_ENGINE_URL]";
 
 // Define a helper for sleeping
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -203,5 +203,9 @@ app.get('*', (req, res) => {
 // --- SERVER START ---
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
+
+    if (config['restful-engine-url'] === '' || config['restful-engine-url'] === DEFAULT_RESTFUL_CONFIG_VALUE) {
+        throw new Error("Please update the 'restful-engine-url' in config.json with your RESTful Engine URL.");
+    }
 });
 
