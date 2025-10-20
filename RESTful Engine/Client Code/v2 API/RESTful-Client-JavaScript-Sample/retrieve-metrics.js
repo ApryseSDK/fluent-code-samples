@@ -16,12 +16,12 @@ async function main()
      */
     console.log("Initializing Fluent RESTful Client...");
 
-    // Create a new instance of the client using the RESTful Engine URL provided in the config file
-    let client = new WindwardClient.WindwardClient(config['restful-engine-url']);
-
-    // Pass the license to the client.  The license should be specified in the config file
+    // Create a new instance of the client using the RESTful Engine URL provided in the config file 
+    // and pass the license to the client.  
+    //
+    // The license should be specified in the config file
     // If you don't have a license key, you can leave it blank and it will produce output with a watermark.
-    client.license = config['license'];
+    let client = new WindwardClient.WindwardClient(config['restful-engine-url'], config['license']);
     
     // Display the version info for the restful engine
     let version = await client.getVersionInfo();

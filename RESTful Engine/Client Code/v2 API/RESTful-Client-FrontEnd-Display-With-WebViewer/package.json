@@ -13,11 +13,13 @@
   "dependencies": {
     "@pdftron/webviewer": "^11.7.1",
     "express": "^4.18.2",
+    "node-fetch": "^2.7.0",
     "windwardrestapi": "*"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
     "@types/node": "^20.19.13",
+    "@types/node-fetch": "^2.6.13",
     "cpx": "^1.5.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",

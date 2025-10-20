@@ -1,8 +1,8 @@
 {
-    "restful-engine-url": "http://localhost:6565",
-    "fluent-license": "bHtzLjSa8TwnWysGZbHlvj2B5T53uzsdJzqxHD1Zu61kYWW9LXD9j2wyRxZ8vGk2dpjpPHYSRQQ9x2W0J7v5PCfI7z6nyjs3ZonxjCa76QQ8yLOtZ4M1jTnl9z08UHEUdPB3nixjfacv6iW9OeX3PTxQsRRm+eE9JjDhPneKZYUvGms9JxhxhOkh5Sw9w3WUZyrjlSbKN5VnKiMVNonLPycq4Q0mi+ENf+rrvG27Oyx32ak+9WAfDj3B9RQ/yzsuZ3h7HGaLJaQqwtMEbNPZJ727taZsgXWOdNSJFvub0yU6U/+Nq4rRDPONf508Yf2O64rRJSxDmQ501YsWbNHRD3yT/Y5klH+eLGFtj73Z/Yel7JkfPIKRDq362Se9ioMOveqRJmqS/Y0ylW+cvcqJBiyCkyb9i/2ObMC1p63Y74772b+EvciDDmy58yx3Gmk8N+i7t+kh5Sw9w3WUZpmhjGcqN7U8wfWPPHInPGaZoYxnKje1OeX3PTxS8RQ3SbmmdPN/Hz1gvYc8gneGbknhvTfKP7c55fc9PFCxlCcKOx1kufEcdxppPDfou7e9i+2uJPT9njRlkR98wK2POtL3pKWsgRflnXWf/cuZD+OckRx8UXWmreqZBnTVfZ4ylOecZMTtl3TUtZd6kr2NbFF/pyzR0SZqU9kFdMelliR3yR50h5MfNGfBHuXerZ77mbeNPNPTJzSnrZ501IEeLOL9jnyTywa9mNEHfIPDB3U0qZYnCjsdZLnxHHcaaTw36Lu36SHlLD3DdZRmSe01N2D5n2f644R2QK0X4o/JhGdawR5nSys8NdPzHWTrcSR3mjEXZmCtBGbqMxx3gfUfN3J5H3fYqb08i/utd/jzFXeB5QQ3Yvkfd9v7nXdSeT532m29LtjjFnfJqbw1wfOcZ/rjhHZArRfij8mEZ1rBHmdLKzw1w/OdZutxHXfafZcvSmEUPRrhlGP5uT0nOvE0ZbHlhz3DMwTnqdmNJkS/D2yApQZ++nsUJ8y7j2Wh5Yc9y2kUZrpbPHb4cQ13+tmEZpmhhTzIs61ngfUN/WAPPz3B9RR/WXEud0CphHf6MxUmO/E9dPGDBnpT/YxqQXWFZNbnlr2r5YYqQ5sNYsSJFGzQ0SfzzokcNORllzxT2Sdy1OWc+4u3pSrS/4UqwvWE7dqlhyywbY884f2npdx9lzLE9516UW+MYoS1nXJFZ5xy1tsc7YiBDyyh5YdyVbedesLnjHRX7Zc8kLeOJMeRHySEt5cyVjccN2m5jGS58Rx3Gmk8N+i7t+kh5Sx9InkWJ8o7NWYSRQV9Nqm2d/qztTfKN5c=",
+    "restful-engine-url": "[YOUR_RESTFUL_ENGINE_URL]",
+    "fluent-license": "",
     "webviewer-license": "",
-    
+
     "template-connection-string": "files/InvestmentFactSheet.docx",
     "output-format": "pdf",
     "datasources": [

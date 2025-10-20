@@ -29,7 +29,10 @@
             const messageArea = document.getElementById('message-area');
             
             // This will hold the promise that resolves with the viewer instance
-            let viewerPromise = null; 
+            let viewerPromise = null;
+
+            // This will hold the fetched config data
+            let config = null;
 
             // Helper function to set message and style
             function showMessage(text, type) {
@@ -47,8 +50,11 @@
                         }
                         return response.json();
                     })
-                    .then(config => {
+                    .then(fetchedConfig => {
+                        config = fetchedConfig;
+
                         const webviewerLicenseKey = config.webviewerLicense;
+                        const initialDocPath = config.templateConnectionString;
                         if (!webviewerLicenseKey) {
                             console.warn("WebViewer license key is missing or a placeholder. The viewer will have a watermark.");
                         }
@@ -57,7 +63,7 @@
                         return WebViewer({
                             path: '/lib/webviewer',
                             licenseKey: webviewerLicenseKey,
-                            initialDoc: 'files/InvestmentFactSheet.docx',   // Show the template initially
+                            initialDoc: initialDocPath,   // Show the template initially
                         }, viewerDiv);
                     })
                     .then(instance => {
@@ -97,8 +103,28 @@
                         // Load the new document into the captured viewer instance
                         const data = await response.arrayBuffer();
                         const arr = new Uint8Array(data);
-                        const blob = new Blob([arr], { type: 'application/pdf' });
-                        instance.UI.loadDocument(blob, { filename: 'output.pdf' });
+                        const outputFormat = config.outputFormat || 'pdf';
+                        let type = `application/${outputFormat}`;
+                        switch(outputFormat) {
+                            case 'docx':
+                                type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+                                break;
+                            case 'xlsx':
+                                type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                                break;
+                            case 'pptx':
+                                type = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+                                break;
+                            case 'html':
+                                type = 'text/html';
+                                break;
+                            case 'pdf':
+                            default:
+                                type = 'application/pdf';
+                                break;
+                        }
+                        const blob = new Blob([arr], { type: type });
+                        instance.UI.loadDocument(blob, { filename: `output.${outputFormat}` });
 
                         instance.Core.documentViewer.addEventListener('documentLoaded', () => {
                             showMessage('Document generated successfully!', 'success');
