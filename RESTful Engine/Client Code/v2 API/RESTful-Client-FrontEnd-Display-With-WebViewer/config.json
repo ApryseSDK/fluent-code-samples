@@ -1,5 +1,16 @@
 {
     "restful-engine-url": "[YOUR_RESTFUL_ENGINE_URL]",
     "fluent-license": "",
-    "webviewer-license": ""
+    "webviewer-license": "",
+
+    "template-connection-string": "files/InvestmentFactSheet.docx",
+    "output-format": "pdf",
+    "datasources": [
+        {
+            "name": "InvestmentFactSheet",
+            "type": "xml",
+            "connection-string": "files/InvestmentFactSheet.xml"
+        }
+    ],
+    "input-parameters": []
 }

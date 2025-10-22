@@ -9,7 +9,7 @@ There are 3 main files to worry about:
 2. index.html
     * This file contains the code for the webpage as well as initializing and using Apryse WebViewer
 3. config.json
-    * This file contains the config options to specify your license keys and RESTful Engine instance to be used by the application
+    * This file contains the config options to specify your license keys, your RESTful Engine instance to be used by the application as well as the properties for which template you would like to generate output for.
 
 ## Requirements
 * Make sure you have Node.js installed on your machine (which includes npm).
@@ -28,6 +28,30 @@ There are 3 main files to worry about:
 5. Run the command `npm start` to start the project.  This should start the server at `http://localhost:3000`.
 6. Open your browser and navigate to `http://localhost:3000` to start using the sample app.
 
+## Config File Reference
+* `template-connection-string`: This is the property where you will place the remote url or filepath for the template you would like to generate output for.
+    * **It is *strongly* recommended that if you are using local files, to place them in the `files` directory and reference the file using relative paths. This allows Webviewer to display the template when the application starts**
+* `output-format`: This is the output format for the document that will be generated.  Valid options are
+    * `docx`/`xlsx`/`pptx` (must match your template format)
+    * `pdf`
+    * `html`
+* `datasources`: This is a list of datasources that are required for your template.  Each datasource takes 3 values:
+    * `name`: The user-given name of the datasource used in the template
+    * `type`: The type of datasource it is.  Valid datasource types are:
+        * `xml`: The legacy xml datasource
+        * `xml2`: The modern (saxon) xml datasource
+        * `json`: A json file datasource
+        * `sql`: A SQL datasource
+    * `connection-string`: This is the connection string for the datasource.  This can be a url/path to a file, or a jdbc formatted connection string for SQL.
+* `input-parameters`: This is a list of input parameters needed for the template.  Each input parameter takes 3 values:
+    * `name`: The name of the input parameter
+    * `type`: The type of the input parameter. Valid types are:
+        * `string`: A text based value
+        * `boolean`: A true/false value
+        * `datetime`: A date/time based value
+        * `number`: A number value (doesn't include decimals)
+        * `decimal`: A number value that includes decimals
+    * `value`: The value fo the input parameter to use during output generation
 
 ## Additional Information
 * More information about the Fluent Client API can be found [here](https://www.npmjs.com/package/windwardrestapi).
