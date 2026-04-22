@@ -224,16 +224,16 @@ jobs:
     continueOnError: true
 
   # # STEP 6: BUILD AND TEST JAVASCRIPT CLIENT SAMPLE (todo when sample is finished/verified)
-  # - script: |
-  #     sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
-  #   displayName: 'Update JavaScript config.json'
+  - script: |
+      sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
+    displayName: 'Update JavaScript config.json'
 
-  # - script: |
-  #     cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
-  #     npm install
-  #     npm start
-  #   displayName: 'Run JavaScript Project'
-    # continueOnError: true
+  - script: |
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
+      npm install
+      npm start
+    displayName: 'Run JavaScript Project'
+    continueOnError: true
 
   # STEP 7: BUILD AND TEST .NET BATCH PROCESSING SAMPLE
   - script: |
