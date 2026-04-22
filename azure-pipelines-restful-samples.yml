@@ -223,16 +223,39 @@ jobs:
     displayName: 'Run Python Client Sample (RetrieveTagTree)'
     continueOnError: true
 
-  # # STEP 6: BUILD AND TEST JAVASCRIPT CLIENT SAMPLE (todo when sample is finished/verified)
+  # STEP 6: BUILD AND TEST JAVASCRIPT CLIENT SAMPLES
   - script: |
       sed -i 's|\[YOUR_RESTFUL_SERVER\]|$(webserverUrl)|g' "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
-    displayName: 'Update JavaScript config.json'
+      echo "Verifying config.json:"
+      cat "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample/config.json"
+    displayName: 'Update & Verify JavaScript config.json'
+    continueOnError: true
 
   - script: |
       cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
       npm install
-      npm start
-    displayName: 'Run JavaScript Project'
+    displayName: 'Install JavaScript Dependencies'
+    continueOnError: true
+
+  # STEP 6A: RUN JAVASCRIPT CLIENT SAMPLE GENERATE DOCUMENT
+  - script: |
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
+      node generate-document.js
+    displayName: 'Run JavaScript Client Sample (GenerateDocument)'
+    continueOnError: true
+
+  # STEP 6B: RUN JAVASCRIPT CLIENT SAMPLE RETRIEVE METRICS
+  - script: |
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
+      node retrieve-metrics.js
+    displayName: 'Run JavaScript Client Sample (RetrieveMetrics)'
+    continueOnError: true
+
+  # STEP 6C: RUN JAVASCRIPT CLIENT SAMPLE RETRIEVE TAG TREE
+  - script: |
+      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
+      node retrieve-tag-tree.js
+    displayName: 'Run JavaScript Client Sample (RetrieveTagTree)'
     continueOnError: true
 
   # STEP 7: BUILD AND TEST .NET BATCH PROCESSING SAMPLE
