@@ -51,11 +51,13 @@ async function main()
     let document = await client.postDocument(template);
     
     //check postDocument status and wait if not ready.
+    let documentReady = false;
     while(true) {
         await sleep(1000);
         let status = await client.getDocumentStatus(document.Guid);
         if (status == 302) {
             // The document generation is complete, we can now proceed to retrieve the generated document
+            documentReady = true;
             break;
         }
         else if (status == 201 || status == 202 || status == 404) {
@@ -63,10 +65,15 @@ async function main()
             continue;
         }
         else {
-            // Potentially have an error, proceed to retrieve the document to get error details
+            // The document generation failed
             console.error("Error retrieving document. Status code: ", status);
             break;
         }
+    }
+
+    if (!documentReady) {
+        console.error("Document generation did not complete successfully. Skipping retrieval.");
+        return;
     }
 
     /**
@@ -79,7 +86,7 @@ async function main()
     let generatedDocument = await client.getDocument(document.Guid);
 
     // Write the processed document to a file (ensure the file format matches the output format specified in the template)
-    fs.writeFile("./files/output.pdf", new Buffer.from(generatedDocument.Data, "base64"), function(err){});
+    fs.writeFile("./files/output.pdf", Buffer.from(generatedDocument.Data, "base64"), function(err){});
     console.log("Generated document saved to /files/output.pdf");
 
     // Delete the processed document from the engine

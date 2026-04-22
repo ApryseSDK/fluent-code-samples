@@ -231,31 +231,31 @@ jobs:
     displayName: 'Update & Verify JavaScript config.json'
     continueOnError: true
 
+  # STEP 6A: BUILD AND RUN JAVASCRIPT CLIENT SAMPLE GENERATE DOCUMENT
   - script: |
-      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
-      npm install
-    displayName: 'Install JavaScript Dependencies'
+      JS_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
+      cd "$JS_PROJECT_DIR"
+      chmod +x scripts/GenerateDocument.sh
+      ./scripts/GenerateDocument.sh
+    displayName: 'Build and Run JavaScript Client Sample (GenerateDocument)'
     continueOnError: true
 
-  # STEP 6A: RUN JAVASCRIPT CLIENT SAMPLE GENERATE DOCUMENT
+  # STEP 6B: BUILD AND RUN JAVASCRIPT CLIENT SAMPLE RETRIEVE METRICS
   - script: |
-      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
-      node generate-document.js
-    displayName: 'Run JavaScript Client Sample (GenerateDocument)'
+      JS_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
+      cd "$JS_PROJECT_DIR"
+      chmod +x scripts/RetrieveMetrics.sh
+      ./scripts/RetrieveMetrics.sh
+    displayName: 'Build and Run JavaScript Client Sample (RetrieveMetrics)'
     continueOnError: true
 
-  # STEP 6B: RUN JAVASCRIPT CLIENT SAMPLE RETRIEVE METRICS
+  # STEP 6C: BUILD AND RUN JAVASCRIPT CLIENT SAMPLE RETRIEVE TAG TREE
   - script: |
-      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
-      node retrieve-metrics.js
-    displayName: 'Run JavaScript Client Sample (RetrieveMetrics)'
-    continueOnError: true
-
-  # STEP 6C: RUN JAVASCRIPT CLIENT SAMPLE RETRIEVE TAG TREE
-  - script: |
-      cd "RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
-      node retrieve-tag-tree.js
-    displayName: 'Run JavaScript Client Sample (RetrieveTagTree)'
+      JS_PROJECT_DIR="RESTful Engine/Client Code/v2 API/RESTful-Client-JavaScript-Sample"
+      cd "$JS_PROJECT_DIR"
+      chmod +x scripts/RetrieveTagTree.sh
+      ./scripts/RetrieveTagTree.sh
+    displayName: 'Build and Run JavaScript Client Sample (RetrieveTagTree)'
     continueOnError: true
 
   # STEP 7: BUILD AND TEST .NET BATCH PROCESSING SAMPLE
