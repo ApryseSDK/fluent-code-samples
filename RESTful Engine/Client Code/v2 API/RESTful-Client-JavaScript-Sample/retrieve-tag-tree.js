@@ -51,11 +51,13 @@ async function main()
     let tagTree = await client.postTagTree(template);
 
     //check postTagTree status and wait if not ready.
+    let tagTreeReady = false;
     while(true) {
         await sleep(1000);
         let status = await client.getTagTreeStatus(tagTree.Guid);
         if (status == 302) {
             // The tag tree request is complete, we can now proceed to retrieve the template tag tree
+            tagTreeReady = true;
             break;
         }
         else if (status == 201 || status == 202 || status == 404) {
@@ -63,10 +65,15 @@ async function main()
             continue;
         }
         else {
-            // Potentially have an error, proceed to retrieve the tag tree to get error details
+            // The tag tree request failed
             console.error("Error retrieving tag tree. Status code: ", status);
             break;
         }
+    }
+
+    if (!tagTreeReady) {
+        console.error("Tag tree request did not complete successfully. Skipping retrieval.");
+        return;
     }
 
     /**
@@ -79,7 +86,7 @@ async function main()
     let templateTagTree = await client.getTagTree(tagTree.Guid);
 
     // Write the template tag tree to a file
-    fs.writeFile("./files/tagTree.xml", new Buffer.from(templateTagTree.Xml, "base64"), function(err){});
+    fs.writeFile("./files/tagTree.xml", Buffer.from(templateTagTree.Xml, "base64"), function(err){});
     console.log("Wrote output to -> ./files/tagTree.xml\n");
 
     // Delete the tag tree from the engine
