@@ -12,6 +12,9 @@ pool:
   vmImage: 'windows-2022' # Use a Windows agent with Visual Studio and .NET Framework SDKs
 
 steps:
+- checkout: self
+  fetchDepth: 1
+  clean: true
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet'
 
