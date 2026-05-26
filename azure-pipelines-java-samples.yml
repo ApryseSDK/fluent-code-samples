@@ -12,6 +12,9 @@ pool:
   vmImage: 'windows-2022'
 
 steps:
+- checkout: self
+  clean: true
+  fetchDepth: 1
 - task: JavaToolInstaller@0
   displayName: 'Install Java JDK'
   inputs:
