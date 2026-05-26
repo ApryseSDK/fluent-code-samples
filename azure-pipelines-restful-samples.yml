@@ -25,6 +25,8 @@ jobs:
   steps:
   # STEP 1: CHECKOUT CODE
   - checkout: self
+    clean: true
+    fetchDepth: 1
 
   # STEP 2A: Write the script logic to a file
   - bash: |
